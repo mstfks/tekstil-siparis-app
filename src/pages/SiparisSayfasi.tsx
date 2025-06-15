@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAppContext } from '../context/AppContext';
 import { KolTuru, YakaTuru, NakisBaskiDurumu, BedenTablosu, SiparisTuru } from '../types';
-import './SiparisSayfasi.css';
 
 const SiparisSayfasi: React.FC = () => {
   const router = useRouter();

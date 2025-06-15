@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
-import './MusterilerSayfasi.css';
 
 const MusterilerSayfasi: React.FC = () => {
   const { musteriler, musteriEkle, musteriSil, musteriSirala } = useAppContext();

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Siparis } from '../types';
-import './GecmisSiparisler.css';
 
 const GecmisSiparisler: React.FC = () => {
   const { siparisler, siparisAktifeDonustur } = useAppContext();

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
-import './RenklerSayfasi.css';
 
 const RenklerSayfasi: React.FC = () => {
   const { renkler, renkEkle, renkSil, renkSirala } = useAppContext();

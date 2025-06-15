@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Siparis } from '../types';
-import './AnaSayfa.css';
 
 const AnaSayfa: React.FC = () => {
   const { siparisler, siparisTamamla, siparisIptal, renkler } = useAppContext();

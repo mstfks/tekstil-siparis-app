@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { SiparisTuru, KolTuru, YakaTuru } from '../types';
-import './GorsellerSayfasi.css';
 
 const GorsellerSayfasi: React.FC = () => {
   const { 
