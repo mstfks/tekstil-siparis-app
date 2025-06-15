@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import { useAppContext } from '../context/AppContext';
 import { KolTuru, YakaTuru, NakisBaskiDurumu, BedenTablosu, SiparisTuru } from '../types';
 import './SiparisSayfasi.css';
 
 const SiparisSayfasi: React.FC = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { 
     musteriler, 
     renkler, 
@@ -164,7 +164,7 @@ const SiparisSayfasi: React.FC = () => {
     });
 
     alert('Sipariş başarıyla oluşturuldu!');
-    navigate('/');
+    router.push('/');
   };
 
   const kombinasyon = getKombinasyonGorsel();
@@ -360,7 +360,7 @@ const SiparisSayfasi: React.FC = () => {
           </div>
 
           <div className="form-actions">
-            <button type="button" onClick={() => navigate('/')} className="iptal-btn">
+            <button type="button" onClick={() => router.push('/')} className="iptal-btn">
               İptal
             </button>
             <button type="submit" className="kaydet-btn">
@@ -424,7 +424,7 @@ const SiparisSayfasi: React.FC = () => {
                   <button 
                     type="button" 
                     className="gorsel-ekle-btn"
-                    onClick={() => navigate('/gorseller')}
+                    onClick={() => router.push('/gorseller')}
                   >
                     Görsel Ekle
                   </button>
