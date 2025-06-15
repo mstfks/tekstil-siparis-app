@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 import './Layout.css';
 
 interface LayoutProps {
@@ -7,7 +8,7 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const location = useLocation();
+  const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const menuItems = [
@@ -21,7 +22,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       )
     },
     { 
-      path: '/yeni-siparis', 
+      path: '/siparis', 
       label: 'Yeni Sipariş', 
       icon: (
         <svg viewBox="0 0 24 24" fill="currentColor">
@@ -30,7 +31,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       )
     },
     { 
-      path: '/gecmis-siparisler', 
+      path: '/gecmis', 
       label: 'Geçmiş Siparişler', 
       icon: (
         <svg viewBox="0 0 24 24" fill="currentColor">
@@ -86,10 +87,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <nav className="sidebar-nav">
           <ul className="menu">
             {menuItems.map((item) => (
-              <li key={item.path} className={location.pathname === item.path ? 'active' : ''}>
-                <Link to={item.path} title={isCollapsed ? item.label : ''}>
-                  <span className="menu-icon">{item.icon}</span>
-                  {!isCollapsed && <span className="menu-label">{item.label}</span>}
+              <li key={item.path} className={router.pathname === item.path ? 'active' : ''}>
+                <Link href={item.path}>
+                  <a title={isCollapsed ? item.label : ''}>
+                    <span className="menu-icon">{item.icon}</span>
+                    {!isCollapsed && <span className="menu-label">{item.label}</span>}
+                  </a>
                 </Link>
               </li>
             ))}
