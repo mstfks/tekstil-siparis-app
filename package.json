@@ -14,6 +14,7 @@
     "@types/react-router-dom": "^5.3.3",
     "axios": "^1.10.0",
     "cloudinary": "^2.6.1",
+    "dotenv": "^16.5.0",
     "mongoose": "^8.15.2",
     "multer": "^2.0.1",
     "next": "^15.3.3",
