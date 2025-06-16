@@ -8,6 +8,7 @@ const SiparisSayfasi: React.FC = () => {
   const { 
     musteriler, 
     renkler, 
+    urunKombinasyonlari,
     siparisEkle,
     kombinasyonBul
   } = useAppContext();
@@ -106,12 +107,17 @@ const SiparisSayfasi: React.FC = () => {
   };
 
   const ekstraBedenEkle = () => {
-    if (yeniBeden.trim() && !bedenTablosu.hasOwnProperty(yeniBeden) && !ekstraBedenler.hasOwnProperty(yeniBeden)) {
+    const trimmedBeden = yeniBeden.trim().toUpperCase();
+    if (trimmedBeden && !bedenTablosu.hasOwnProperty(trimmedBeden) && !ekstraBedenler.hasOwnProperty(trimmedBeden)) {
       setEkstraBedenler(prev => ({
         ...prev,
-        [yeniBeden.trim()]: 0
+        [trimmedBeden]: 0
       }));
       setYeniBeden('');
+    } else if (trimmedBeden && (bedenTablosu.hasOwnProperty(trimmedBeden) || ekstraBedenler.hasOwnProperty(trimmedBeden))) {
+      alert('Bu beden zaten mevcut!');
+    } else if (!trimmedBeden) {
+      alert('Lütfen geçerli bir beden adı giriniz!');
     }
   };
 
@@ -123,7 +129,7 @@ const SiparisSayfasi: React.FC = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.musteriId || !formData.renkId) {
@@ -149,7 +155,7 @@ const SiparisSayfasi: React.FC = () => {
 
     const tumBedenler = { ...bedenTablosu, ...ekstraBedenler };
 
-    siparisEkle({
+    await siparisEkle({
       siparisTuru: formData.siparisTuru,
       musteriId: formData.musteriId,
       musteriIsmi: seciliMusteri.isim,
@@ -336,9 +342,15 @@ const SiparisSayfasi: React.FC = () => {
             <div className="yeni-beden">
               <input
                 type="text"
-                placeholder="Yeni beden adı"
+                placeholder="Yeni beden adı (örn: 5XL, XXXL)"
                 value={yeniBeden}
                 onChange={(e) => setYeniBeden(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    ekstraBedenEkle();
+                  }
+                }}
               />
               <button type="button" onClick={ekstraBedenEkle} className="ekle-btn">
                 Beden Ekle

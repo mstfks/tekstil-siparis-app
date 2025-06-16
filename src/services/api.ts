@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Musteri, Renk, Siparis, UrunKombinasyonu } from '../types';
 
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://your-app.vercel.app/api' 
+  ? '/api' 
   : 'http://localhost:3000/api';
 
 const api = axios.create({
@@ -29,7 +29,7 @@ export const musteriAPI = {
   },
   
   updateOrder: async (id: string, newOrder: number): Promise<void> => {
-    await api.put(`/musteriler/${id}/order`, { sira: newOrder });
+    await api.put(`/musteriler/${id}`, { sira: newOrder });
   }
 };
 
@@ -50,7 +50,7 @@ export const renkAPI = {
   },
   
   updateOrder: async (id: string, newOrder: number): Promise<void> => {
-    await api.put(`/renkler/${id}/order`, { sira: newOrder });
+    await api.put(`/renkler/${id}`, { sira: newOrder });
   }
 };
 
@@ -64,7 +64,11 @@ export const kombinasyonAPI = {
   create: async (kombinasyon: Omit<UrunKombinasyonu, 'id'>, file: File): Promise<UrunKombinasyonu> => {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('data', JSON.stringify(kombinasyon));
+    formData.append('siparisTuru', kombinasyon.siparisTuru);
+    formData.append('renkId', kombinasyon.renkId);
+    formData.append('kolTuru', kombinasyon.kolTuru);
+    formData.append('yakaTuru', kombinasyon.yakaTuru);
+    formData.append('isim', kombinasyon.isim);
     
     const response = await api.post('/kombinasyonlar', formData, {
       headers: {
@@ -92,7 +96,7 @@ export const siparisAPI = {
   },
   
   updateStatus: async (id: string, durum: 'beklemede' | 'tamamlandi' | 'iptal'): Promise<void> => {
-    await api.put(`/siparisler/${id}/status`, { durum });
+    await api.put(`/siparisler/${id}`, { durum });
   }
 };
 

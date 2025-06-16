@@ -7,18 +7,18 @@ const MusterilerSayfasi: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (yeniMusteriIsmi.trim()) {
-      musteriEkle({ isim: yeniMusteriIsmi.trim() });
+      await musteriEkle({ isim: yeniMusteriIsmi.trim() });
       setYeniMusteriIsmi('');
       setShowForm(false);
     }
   };
 
-  const handleSil = (id: string, isim: string) => {
+  const handleSil = async (id: string, isim: string) => {
     if (window.confirm(`"${isim}" müşterisini silmek istediğinizden emin misiniz?`)) {
-      musteriSil(id);
+      await musteriSil(id);
     }
   };
 

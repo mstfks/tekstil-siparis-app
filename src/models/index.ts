@@ -35,16 +35,7 @@ const SiparisSchema = new mongoose.Schema({
   kolTuru: { type: String, required: true },
   yakaTuru: { type: String, required: true },
   nakisBaskiDurumu: { type: String, required: true },
-  bedenTablosu: {
-    XS: { type: Number, default: 0 },
-    S: { type: Number, default: 0 },
-    M: { type: Number, default: 0 },
-    L: { type: Number, default: 0 },
-    XL: { type: Number, default: 0 },
-    XXL: { type: Number, default: 0 },
-    '3XL': { type: Number, default: 0 },
-    '4XL': { type: Number, default: 0 }
-  },
+  bedenTablosu: { type: mongoose.Schema.Types.Mixed, required: true },
   toplamUrun: { type: Number, required: true },
   not: { type: String, default: '' },
   kombinasyonGorsel: { type: String } // Cloudinary URL

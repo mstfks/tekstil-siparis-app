@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Musteri, Renk, Siparis, UrunKombinasyonu } from '../types';
+import { musteriAPI, renkAPI, siparisAPI, kombinasyonAPI } from '../services/api';
 
 interface AppContextType {
   musteriler: Musteri[];
@@ -7,19 +8,19 @@ interface AppContextType {
   siparisler: Siparis[];
   urunKombinasyonlari: UrunKombinasyonu[];
   siparisNoSayaci: number;
-  musteriEkle: (musteri: Omit<Musteri, 'id' | 'sira'>) => void;
-  renkEkle: (renk: Omit<Renk, 'id' | 'sira'>) => void;
-  siparisEkle: (siparis: Omit<Siparis, 'id' | 'siparisNo' | 'tarih' | 'durum' | 'toplamUrun' | 'kombinasyonGorsel'>) => void;
-  musteriSil: (id: string) => void;
+  musteriEkle: (musteri: Omit<Musteri, 'id' | 'sira'>) => Promise<void>;
+  renkEkle: (renk: Omit<Renk, 'id' | 'sira'>) => Promise<void>;
+  siparisEkle: (siparis: Omit<Siparis, 'id' | 'siparisNo' | 'tarih' | 'durum' | 'toplamUrun' | 'kombinasyonGorsel'>) => Promise<void>;
+  musteriSil: (id: string) => Promise<void>;
   musteriSirala: (musteriId: string, yeniSira: number) => void;
-  renkSil: (id: string) => void;
+  renkSil: (id: string) => Promise<void>;
   renkSirala: (renkId: string, yeniSira: number) => void;
-  siparisTamamla: (id: string) => void;
-  siparisIptal: (id: string) => void;
-  siparisAktifeDonustur: (id: string) => void;
+  siparisTamamla: (id: string) => Promise<void>;
+  siparisIptal: (id: string) => Promise<void>;
+  siparisAktifeDonustur: (id: string) => Promise<void>;
   // Kombinasyon yönetimi
-  kombinasyonEkle: (kombinasyon: Omit<UrunKombinasyonu, 'id'>) => void;
-  kombinasyonSil: (id: string) => void;
+  kombinasyonEkle: (kombinasyon: Omit<UrunKombinasyonu, 'id'>, file: File) => Promise<void>;
+  kombinasyonSil: (id: string) => Promise<void>;
   kombinasyonBul: (siparisTuru: string, renkId: string, kolTuru: string, yakaTuru: string) => UrunKombinasyonu | undefined;
 }
 
@@ -38,67 +39,95 @@ interface AppProviderProps {
 }
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
-  const [musteriler, setMusteriler] = useState<Musteri[]>([
-    { id: '1', isim: 'Ahmet Yılmaz', sira: 1 },
-    { id: '2', isim: 'Ayşe Kaya', sira: 2 },
-    { id: '3', isim: 'Mehmet Demir', sira: 3 },
-  ].sort((a, b) => a.sira - b.sira));
-
-  const [renkler, setRenkler] = useState<Renk[]>([
-    { id: '1', isim: 'Beyaz', kod: '#FFFFFF', sira: 1 },
-    { id: '2', isim: 'Siyah', kod: '#000000', sira: 2 },
-    { id: '3', isim: 'Kırmızı', kod: '#FF0000', sira: 3 },
-    { id: '4', isim: 'Mavi', kod: '#0000FF', sira: 4 },
-    { id: '5', isim: 'Yeşil', kod: '#00FF00', sira: 5 },
-  ].sort((a, b) => a.sira - b.sira));
-
+  const [musteriler, setMusteriler] = useState<Musteri[]>([]);
+  const [renkler, setRenkler] = useState<Renk[]>([]);
   const [siparisler, setSiparisler] = useState<Siparis[]>([]);
   const [siparisNoSayaci, setSiparisNoSayaci] = useState(1);
-
-  // Ürün kombinasyonları
   const [urunKombinasyonlari, setUrunKombinasyonlari] = useState<UrunKombinasyonu[]>([]);
 
-  const musteriEkle = (musteri: Omit<Musteri, 'id' | 'sira'>) => {
-    const yeniSira = Math.max(...musteriler.map(m => m.sira), 0) + 1;
-    const yeniMusteri: Musteri = {
-      ...musteri,
-      id: Date.now().toString(),
-      sira: yeniSira,
-    };
-    setMusteriler(prev => [...prev, yeniMusteri].sort((a, b) => a.sira - b.sira));
+  // API'den verileri yükle
+  const verileriYukle = async () => {
+    try {
+      const [musterilerData, renklerData, siparislerData, kombinasyonlarData] = await Promise.all([
+        musteriAPI.getAll(),
+        renkAPI.getAll(),
+        siparisAPI.getAll(),
+        kombinasyonAPI.getAll()
+      ]);
+
+      setMusteriler(musterilerData.map((m: any) => ({ ...m, id: m._id || m.id })));
+      setRenkler(renklerData.map((r: any) => ({ ...r, id: r._id || r.id })));
+      setSiparisler(siparislerData.map((s: any) => ({ 
+        ...s, 
+        id: s._id || s.id,
+        tarih: new Date(s.createdAt || s.tarih)
+      })));
+      setUrunKombinasyonlari(kombinasyonlarData.map((k: any) => ({ ...k, id: k._id || k.id })));
+      
+      // En yüksek sipariş numarasını bul
+      if (siparislerData.length > 0) {
+        const maxSiparisNo = Math.max(...siparislerData.map((s: any) => s.siparisNo || 0));
+        setSiparisNoSayaci(maxSiparisNo + 1);
+      }
+    } catch (error) {
+      console.error('Veriler yüklenirken hata:', error);
+    }
   };
 
-  const renkEkle = (renk: Omit<Renk, 'id' | 'sira'>) => {
-    const yeniSira = Math.max(...renkler.map(r => r.sira), 0) + 1;
-    const yeniRenk: Renk = {
-      ...renk,
-      id: Date.now().toString(),
-      sira: yeniSira,
-    };
-    setRenkler(prev => [...prev, yeniRenk].sort((a, b) => a.sira - b.sira));
+  useEffect(() => {
+    verileriYukle();
+  }, []);
+
+  const musteriEkle = async (musteri: Omit<Musteri, 'id' | 'sira'>) => {
+    try {
+      const yeniMusteri = await musteriAPI.create(musteri);
+      setMusteriler(prev => [...prev, { ...yeniMusteri, id: (yeniMusteri as any)._id || yeniMusteri.id }].sort((a, b) => a.sira - b.sira));
+    } catch (error) {
+      console.error('Müşteri eklenirken hata:', error);
+      alert('Müşteri eklenirken bir hata oluştu.');
+    }
   };
 
-  const siparisEkle = (siparis: Omit<Siparis, 'id' | 'siparisNo' | 'tarih' | 'durum' | 'toplamUrun' | 'kombinasyonGorsel'>) => {
-    const toplamUrun = Object.values(siparis.bedenTablosu).reduce((toplam, adet) => toplam + adet, 0);
-    
-    // Kombinasyon görselini bul
-    const kombinasyon = kombinasyonBul(siparis.siparisTuru, siparis.renkId, siparis.kolTuru, siparis.yakaTuru);
-    
-    const yeniSiparis: Siparis = {
-      ...siparis,
-      id: Date.now().toString(),
-      siparisNo: siparisNoSayaci,
-      durum: 'beklemede',
-      toplamUrun,
-      tarih: new Date(),
-      kombinasyonGorsel: kombinasyon?.gorsel,
-    };
-    setSiparisler(prev => [...prev, yeniSiparis]);
-    setSiparisNoSayaci(prev => prev + 1);
+  const renkEkle = async (renk: Omit<Renk, 'id' | 'sira'>) => {
+    try {
+      const yeniRenk = await renkAPI.create(renk);
+      setRenkler(prev => [...prev, { ...yeniRenk, id: (yeniRenk as any)._id || yeniRenk.id }].sort((a, b) => a.sira - b.sira));
+    } catch (error) {
+      console.error('Renk eklenirken hata:', error);
+      alert('Renk eklenirken bir hata oluştu.');
+    }
   };
 
-  const musteriSil = (id: string) => {
-    setMusteriler(prev => prev.filter(m => m.id !== id));
+  const siparisEkle = async (siparis: Omit<Siparis, 'id' | 'siparisNo' | 'tarih' | 'durum' | 'toplamUrun' | 'kombinasyonGorsel'>) => {
+    try {
+      const kombinasyon = kombinasyonBul(siparis.siparisTuru, siparis.renkId, siparis.kolTuru, siparis.yakaTuru);
+      
+      const siparisData = {
+        ...siparis,
+        kombinasyonGorsel: kombinasyon?.gorsel,
+      };
+      
+      const yeniSiparis = await siparisAPI.create(siparisData);
+      setSiparisler(prev => [...prev, { 
+        ...yeniSiparis, 
+        id: (yeniSiparis as any)._id || yeniSiparis.id,
+        tarih: new Date((yeniSiparis as any).createdAt || yeniSiparis.tarih)
+      }]);
+      setSiparisNoSayaci(prev => prev + 1);
+    } catch (error) {
+      console.error('Sipariş eklenirken hata:', error);
+      alert('Sipariş eklenirken bir hata oluştu.');
+    }
+  };
+
+  const musteriSil = async (id: string) => {
+    try {
+      await musteriAPI.delete(id);
+      setMusteriler(prev => prev.filter(m => m.id !== id));
+    } catch (error) {
+      console.error('Müşteri silinirken hata:', error);
+      alert('Müşteri silinirken bir hata oluştu.');
+    }
   };
 
   const musteriSirala = (musteriId: string, yeniSira: number) => {
@@ -126,8 +155,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     });
   };
 
-  const renkSil = (id: string) => {
-    setRenkler(prev => prev.filter(r => r.id !== id));
+  const renkSil = async (id: string) => {
+    try {
+      await renkAPI.delete(id);
+      setRenkler(prev => prev.filter(r => r.id !== id));
+    } catch (error) {
+      console.error('Renk silinirken hata:', error);
+      alert('Renk silinirken bir hata oluştu.');
+    }
   };
 
   const renkSirala = (renkId: string, yeniSira: number) => {
@@ -155,71 +190,108 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     });
   };
 
-  const siparisTamamla = (id: string) => {
-    setSiparisler(prev => 
-      prev.map(siparis => 
-        siparis.id === id 
-          ? { ...siparis, durum: 'tamamlandi' as const }
-          : siparis
-      )
-    );
+  const siparisTamamla = async (id: string) => {
+    try {
+      await siparisAPI.updateStatus(id, 'tamamlandi');
+      setSiparisler(prev => 
+        prev.map(siparis => 
+          siparis.id === id 
+            ? { ...siparis, durum: 'tamamlandi' as const }
+            : siparis
+        )
+      );
+    } catch (error) {
+      console.error('Sipariş tamamlanırken hata:', error);
+      alert('Sipariş tamamlanırken bir hata oluştu.');
+    }
   };
 
-  const siparisIptal = (id: string) => {
-    setSiparisler(prev => 
-      prev.map(siparis => 
-        siparis.id === id 
-          ? { ...siparis, durum: 'iptal' as const }
-          : siparis
-      )
-    );
+  const siparisIptal = async (id: string) => {
+    try {
+      await siparisAPI.updateStatus(id, 'iptal');
+      setSiparisler(prev => 
+        prev.map(siparis => 
+          siparis.id === id 
+            ? { ...siparis, durum: 'iptal' as const }
+            : siparis
+        )
+      );
+    } catch (error) {
+      console.error('Sipariş iptal edilirken hata:', error);
+      alert('Sipariş iptal edilirken bir hata oluştu.');
+    }
   };
 
-  const siparisAktifeDonustur = (id: string) => {
-    setSiparisler(prev => 
-      prev.map(siparis => 
-        siparis.id === id 
-          ? { ...siparis, durum: 'beklemede' as const }
-          : siparis
-      )
-    );
+  const siparisAktifeDonustur = async (id: string) => {
+    try {
+      await siparisAPI.updateStatus(id, 'beklemede');
+      setSiparisler(prev => 
+        prev.map(siparis => 
+          siparis.id === id 
+            ? { ...siparis, durum: 'beklemede' as const }
+            : siparis
+        )
+      );
+    } catch (error) {
+      console.error('Sipariş aktif edilirken hata:', error);
+      alert('Sipariş aktif edilirken bir hata oluştu.');
+    }
   };
 
   // Kombinasyon yönetimi fonksiyonları
-  const kombinasyonEkle = (kombinasyon: Omit<UrunKombinasyonu, 'id'>) => {
-    const yeniKombinasyon: UrunKombinasyonu = {
-      ...kombinasyon,
-      id: Date.now().toString(),
-    };
-    setUrunKombinasyonlari(prev => {
-      // Aynı kombinasyon varsa güncelle
-      const mevcutIndex = prev.findIndex(k => 
-        k.siparisTuru === kombinasyon.siparisTuru &&
-        k.renkId === kombinasyon.renkId &&
-        k.kolTuru === kombinasyon.kolTuru &&
-        k.yakaTuru === kombinasyon.yakaTuru
-      );
-      
-      if (mevcutIndex >= 0) {
-        const yeni = [...prev];
-        yeni[mevcutIndex] = yeniKombinasyon;
-        return yeni;
-      }
-      return [...prev, yeniKombinasyon];
-    });
+  const kombinasyonEkle = async (kombinasyon: Omit<UrunKombinasyonu, 'id'>, file: File) => {
+    try {
+      const yeniKombinasyon = await kombinasyonAPI.create(kombinasyon, file);
+      setUrunKombinasyonlari(prev => {
+        // Aynı kombinasyon varsa güncelle
+        const mevcutIndex = prev.findIndex(k => {
+          const kombinasyonRenkId = typeof k.renkId === 'object' && (k.renkId as any)?.id ? (k.renkId as any).id : k.renkId;
+          return k.siparisTuru === kombinasyon.siparisTuru &&
+            kombinasyonRenkId === kombinasyon.renkId &&
+            k.kolTuru === kombinasyon.kolTuru &&
+            k.yakaTuru === kombinasyon.yakaTuru;
+        });
+        
+        const yeniKombinasyonWithId = { ...yeniKombinasyon, id: (yeniKombinasyon as any)._id || yeniKombinasyon.id };
+        
+        if (mevcutIndex >= 0) {
+          const yeni = [...prev];
+          yeni[mevcutIndex] = yeniKombinasyonWithId;
+          return yeni;
+        }
+        return [...prev, yeniKombinasyonWithId];
+      });
+    } catch (error) {
+      console.error('Kombinasyon eklenirken hata:', error);
+      alert('Kombinasyon eklenirken bir hata oluştu.');
+    }
   };
 
-  const kombinasyonSil = (id: string) => {
-    setUrunKombinasyonlari(prev => prev.filter(k => k.id !== id));
+  const kombinasyonSil = async (id: string) => {
+    try {
+      await kombinasyonAPI.delete(id);
+      setUrunKombinasyonlari(prev => prev.filter(k => k.id !== id));
+    } catch (error) {
+      console.error('Kombinasyon silinirken hata:', error);
+      alert('Kombinasyon silinirken bir hata oluştu.');
+    }
   };
 
   const kombinasyonBul = (siparisTuru: string, renkId: string, kolTuru: string, yakaTuru: string) => {
-    return urunKombinasyonlari.find(k => 
-      k.siparisTuru === siparisTuru &&
-      k.renkId === renkId &&
-      k.kolTuru === kolTuru &&
-      k.yakaTuru === yakaTuru
-    );
+    return urunKombinasyonlari.find(k => {
+      // renkId karşılaştırması - hem string hem de populate edilmiş obje için
+      const kombinasyonRenkId = typeof k.renkId === 'object' && (k.renkId as any)?.id ? (k.renkId as any).id : k.renkId;
+      
+      // MongoDB ObjectId string formatı vs direkt string karşılaştırması
+      const renkIdEslesir = kombinasyonRenkId === renkId || 
+                           (typeof k.renkId === 'object' && (k.renkId as any)?._id === renkId) ||
+                           (typeof k.renkId === 'string' && k.renkId.toString() === renkId.toString());
+      
+      return k.siparisTuru === siparisTuru &&
+        renkIdEslesir &&
+        k.kolTuru === kolTuru &&
+        k.yakaTuru === yakaTuru;
+    });
   };
 
   const value: AppContextType = {

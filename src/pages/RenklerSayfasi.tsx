@@ -7,10 +7,10 @@ const RenklerSayfasi: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (yeniRenk.isim.trim()) {
-      renkEkle({
+      await renkEkle({
         isim: yeniRenk.isim.trim(),
         kod: yeniRenk.kod
       });
@@ -48,9 +48,9 @@ const RenklerSayfasi: React.FC = () => {
     setDraggedItem(null);
   };
 
-  const handleSil = (id: string, isim: string) => {
+  const handleSil = async (id: string, isim: string) => {
     if (window.confirm(`"${isim}" rengini silmek istediğinizden emin misiniz?`)) {
-      renkSil(id);
+      await renkSil(id);
     }
   };
 

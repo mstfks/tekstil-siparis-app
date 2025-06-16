@@ -7,7 +7,8 @@ const GorsellerSayfasi: React.FC = () => {
     renkler, 
     urunKombinasyonlari,
     kombinasyonEkle,
-    kombinasyonSil
+    kombinasyonSil,
+    kombinasyonBul
   } = useAppContext();
 
   const [formData, setFormData] = useState({
@@ -20,6 +21,11 @@ const GorsellerSayfasi: React.FC = () => {
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [acikGruplar, setAcikGruplar] = useState<{ [key: string]: boolean }>({
+    suprem: false,
+    lakost: false,
+    yagmurdesen: false
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -70,24 +76,31 @@ const GorsellerSayfasi: React.FC = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.renkId || !selectedFile || !previewUrl) {
+    if (!formData.renkId || !selectedFile) {
       alert('Lütfen tüm alanları doldurun ve bir görsel seçin.');
       return;
     }
 
-    kombinasyonEkle({
+    // Daha önce kaydedilmiş kombinasyon kontrolü
+    const mevcutKombinasyon = kombinasyonBul(formData.siparisTuru, formData.renkId, formData.kolTuru, formData.yakaTuru);
+    if (mevcutKombinasyon) {
+      alert('Bu kombinasyon için zaten bir görsel kaydedilmiş. Lütfen farklı bir kombinasyon seçin.');
+      return;
+    }
+
+    await kombinasyonEkle({
       siparisTuru: formData.siparisTuru,
       renkId: formData.renkId,
       kolTuru: formData.kolTuru,
       yakaTuru: formData.yakaTuru,
-      gorsel: previewUrl,
+      gorsel: '', // Bu değer API'de Cloudinary URL ile doldurulacak
       isim: formData.isim || 'İsimsiz Kombinasyon'
-    });
+    }, selectedFile);
 
-    // Formu temizle
+    // Formu ilk haline döndür
     setFormData({
       siparisTuru: 'suprem',
       renkId: '',
@@ -101,14 +114,37 @@ const GorsellerSayfasi: React.FC = () => {
     alert('Kombinasyon başarıyla eklendi!');
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm('Bu kombinasyonu silmek istediğinizden emin misiniz?')) {
-      kombinasyonSil(id);
+      await kombinasyonSil(id);
     }
   };
 
-  const getRenkIsmi = (renkId: string) => {
+  const getRenkIsmi = (renkId: string | any) => {
+    // Eğer renkId bir obje ise (populate edilmiş), direkt ismini döndür
+    if (typeof renkId === 'object' && renkId?.isim) {
+      return renkId.isim;
+    }
+    // Değilse, renkler listesinde ara
     return renkler.find(r => r.id === renkId)?.isim || 'Bilinmeyen Renk';
+  };
+
+  const toggleGrup = (siparisTuru: string) => {
+    setAcikGruplar(prev => ({
+      ...prev,
+      [siparisTuru]: !prev[siparisTuru]
+    }));
+  };
+
+  const tumunuToggle = () => {
+    const tumGruplarAcik = Object.values(acikGruplar).every(Boolean);
+    const yeniDurum = !tumGruplarAcik;
+    
+    setAcikGruplar({
+      suprem: yeniDurum,
+      lakost: yeniDurum,
+      yagmurdesen: yeniDurum
+    });
   };
 
   const kolTurleri = [
@@ -243,35 +279,75 @@ const GorsellerSayfasi: React.FC = () => {
 
         {/* Mevcut Kombinasyonlar */}
         <div className="mevcut-kombinasyonlar">
-          <h2>Mevcut Kombinasyonlar ({urunKombinasyonlari.length})</h2>
+          <div className="kombinasyon-header">
+            <h2>Mevcut Kombinasyonlar ({urunKombinasyonlari.length})</h2>
+            {urunKombinasyonlari.length > 0 && (
+              <button 
+                className="tumunu-toggle-btn"
+                onClick={tumunuToggle}
+              >
+                {Object.values(acikGruplar).every(Boolean) ? 'Tümünü Kapat' : 'Tümünü Aç'}
+              </button>
+            )}
+          </div>
           
           {urunKombinasyonlari.length === 0 ? (
             <div className="bos-liste">
               <p>Henüz kombinasyon eklenmemiş.</p>
             </div>
           ) : (
-            <div className="kombinasyon-grid">
-              {urunKombinasyonlari.map(kombinasyon => (
-                <div key={kombinasyon.id} className="kombinasyon-kart">
-                  <div className="kombinasyon-gorsel">
-                    <img src={kombinasyon.gorsel} alt={kombinasyon.isim} />
-                  </div>
-                  <div className="kombinasyon-bilgi">
-                    <h3>{kombinasyon.isim}</h3>
-                    <div className="kombinasyon-detaylar">
-                      <p><strong>Renk:</strong> {getRenkIsmi(kombinasyon.renkId)}</p>
-                      <p><strong>Kol:</strong> {kolTurleri.find(k => k.value === kombinasyon.kolTuru)?.label}</p>
-                      <p><strong>Yaka:</strong> {yakaTurleri.find(y => y.value === kombinasyon.yakaTuru)?.label}</p>
-                    </div>
-                    <button 
-                      className="sil-btn"
-                      onClick={() => handleDelete(kombinasyon.id)}
+            <div className="kombinasyon-gruplari">
+              {['suprem', 'lakost', 'yagmurdesen'].map(siparisTuru => {
+                const kombinasyonlar = urunKombinasyonlari.filter(k => k.siparisTuru === siparisTuru);
+                
+                if (kombinasyonlar.length === 0) return null;
+                
+                return (
+                  <div key={siparisTuru} className="siparis-grubu">
+                    <div 
+                      className="grup-baslik"
+                      onClick={() => toggleGrup(siparisTuru)}
                     >
-                      Sil
-                    </button>
+                      <h3>
+                        {siparisTuru === 'suprem' ? 'Süprem' : 
+                         siparisTuru === 'lakost' ? 'Lakost' : 'Yağmurdesen'} 
+                        ({kombinasyonlar.length})
+                      </h3>
+                      <div className={`toggle-icon ${acikGruplar[siparisTuru] ? 'acik' : 'kapali'}`}>
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
+                        </svg>
+                      </div>
+                    </div>
+                    
+                    {acikGruplar[siparisTuru] && (
+                      <div className="kombinasyon-grid">
+                        {kombinasyonlar.map(kombinasyon => (
+                          <div key={kombinasyon.id} className="kombinasyon-kart">
+                            <div className="kombinasyon-gorsel">
+                              <img src={kombinasyon.gorsel} alt={kombinasyon.isim} />
+                            </div>
+                            <div className="kombinasyon-bilgi">
+                              <h4>{kombinasyon.isim}</h4>
+                              <div className="kombinasyon-detaylar">
+                                <p><strong>Renk:</strong> {getRenkIsmi(kombinasyon.renkId)}</p>
+                                <p><strong>Kol:</strong> {kolTurleri.find(k => k.value === kombinasyon.kolTuru)?.label}</p>
+                                <p><strong>Yaka:</strong> {yakaTurleri.find(y => y.value === kombinasyon.yakaTuru)?.label}</p>
+                              </div>
+                              <button 
+                                className="sil-btn"
+                                onClick={() => handleDelete(kombinasyon.id)}
+                              >
+                                Sil
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

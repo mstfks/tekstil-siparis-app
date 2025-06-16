@@ -87,11 +87,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <ul className="menu">
             {menuItems.map((item) => (
               <li key={item.path} className={router.pathname === item.path ? 'active' : ''}>
-                <Link href={item.path}>
-                  <a title={isCollapsed ? item.label : ''}>
-                    <span className="menu-icon">{item.icon}</span>
-                    {!isCollapsed && <span className="menu-label">{item.label}</span>}
-                  </a>
+                <Link href={item.path} title={isCollapsed ? item.label : ''}>
+                  <span className="menu-icon">{item.icon}</span>
+                  {!isCollapsed && <span className="menu-label">{item.label}</span>}
                 </Link>
               </li>
             ))}
