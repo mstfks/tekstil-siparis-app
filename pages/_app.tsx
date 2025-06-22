@@ -2,11 +2,25 @@ import React from 'react';
 import type { AppProps } from 'next/app';
 import '../styles/globals.css';
 import { AppProvider } from '../src/context/AppContext';
+import { AuthProvider, useAuth } from '../src/context/AuthContext';
+import LoginForm from '../src/components/LoginForm';
 
-export default function App({ Component, pageProps }: AppProps) {
+function AppContent({ Component, pageProps }: AppProps) {
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <LoginForm />;
+  }
+
+  return <Component {...pageProps} />;
+}
+
+export default function App(props: AppProps) {
   return (
-    <AppProvider>
-      <Component {...pageProps} />
-    </AppProvider>
+    <AuthProvider>
+      <AppProvider>
+        <AppContent {...props} />
+      </AppProvider>
+    </AuthProvider>
   );
 } 

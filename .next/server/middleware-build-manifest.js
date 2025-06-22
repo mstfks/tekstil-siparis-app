@@ -34,11 +34,6 @@ globalThis.__BUILD_MANIFEST = {
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/gecmis.js"
-    ],
-    "/siparis": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/siparis.js"
     ]
   },
   "ampFirstPages": []

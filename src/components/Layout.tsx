@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { useAuth } from '../context/AuthContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -9,6 +10,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
+  const { user, logout } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -133,6 +135,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </ul>
         </nav>
         <div className="sidebar-footer">
+          {!isCollapsed && user && (
+            <div className="user-info">
+              <span>Hoşgeldin, {user.username}</span>
+              <button 
+                className="logout-btn" 
+                onClick={logout}
+                title="Çıkış Yap"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z"/>
+                </svg>
+                Çıkış
+              </button>
+            </div>
+          )}
           <button 
             className="collapse-btn" 
             onClick={() => setIsCollapsed(!isCollapsed)}
