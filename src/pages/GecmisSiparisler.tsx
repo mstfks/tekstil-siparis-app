@@ -637,7 +637,12 @@ const GecmisSiparisler: React.FC = () => {
                       >
                         <div className="siparis-bilgi">
                           <div className="siparis-baslik">
-                            <h3>{siparis.musteriIsmi} #{siparis.siparisNo} - {siparis.tarih.toLocaleDateString('tr-TR')}</h3>
+                            <h3>
+                              {siparis.musteriIsmi} #{siparis.siparisNo} - {siparis.tarih.toLocaleDateString('tr-TR')}
+                              {siparis.not && siparis.not.trim() && (
+                                <span className="not-ikonu" title={`Not: ${siparis.not}`}>📝</span>
+                              )}
+                            </h3>
                             <span className={`durum-badge ${durumRengi(siparis.durum)}`}>{durumMetni(siparis.durum)}</span>
                           </div>
                           <div className="siparis-detaylar">

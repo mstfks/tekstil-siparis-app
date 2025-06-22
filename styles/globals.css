@@ -2550,3 +2550,26 @@ body {
 .sidebar.collapsed .user-info {
   display: none;
 }
+
+/* Not İkonu Stilleri */
+.not-ikonu {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 0.9em;
+  color: #f59e0b;
+  cursor: help;
+  transition: all 0.2s ease;
+  opacity: 0.8;
+}
+
+.not-ikonu:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  color: #d97706;
+}
+
+.siparis-baslik h3 {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
