@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { Siparis } from '../types';
+import { Siparis, PolarModeli } from '../types';
 
 const AnaSayfa: React.FC = () => {
-  const { siparisler, siparisTamamla, siparisIptal, renkler } = useAppContext();
+  const { siparisler, siparisTamamla, siparisIptal, siparisSil, renkler } = useAppContext();
   const [seciliSiparis, setSeciliSiparis] = useState<Siparis | null>(null);
   const [siralama, setSiralama] = useState<'yeni-eski' | 'eski-yeni'>('yeni-eski');
   const [aramaMetni, setAramaMetni] = useState<string>('');
 
   // Helper fonksiyonlar
-  const kolTuruMetni = (kol: string) => {
+  const kolTuruMetni = (kol?: string) => {
+    if (!kol) return '';
     switch (kol) {
       case 'kisa': return 'Kısa Kol';
       case 'uzun': return 'Uzun Kol';
@@ -19,12 +20,38 @@ const AnaSayfa: React.FC = () => {
     }
   };
 
-  const yakaTuruMetni = (yaka: string) => {
+  const yakaTuruMetni = (yaka?: string) => {
+    if (!yaka) return '';
     switch (yaka) {
       case 'bisiklet': return 'Bisiklet Yaka';
       case 'v': return 'V Yaka';
       case 'polo': return 'Polo Yaka';
       default: return yaka;
+    }
+  };
+
+  const ucIplikModeliMetni = (model?: string) => {
+    if (!model) return '';
+    switch (model) {
+      case 'dik-yaka-mont': return 'Dik Yaka Mont';
+      case 'bisiklet-yaka-sivit': return 'Bisiklet Yaka Sivit';
+      case 'kapusonlu-sivit': return 'Kapüşonlu Sivit';
+      case 'kisa-fermuarli-sivit': return 'Kısa Fermuarlı Sivit';
+      case 'kapusonlu-mont': return 'Kapüşonlu Mont';
+      case 'polo-yaka-sivit': return 'Polo Yaka Sivit';
+      default: return model;
+    }
+  };
+
+  const polarModeliMetni = (model?: string) => {
+    if (!model) return '';
+    switch (model) {
+      case 'dik-yaka-mont': return 'Dik Yaka Mont';
+      case 'kisa-fermuarli-sivit': return 'Kısa Fermuarlı Sivit';
+      case 'kapusonlu-mont': return 'Kapüşonlu Mont';
+      case 'sal-70cm': return 'Şal 70 cm';
+      case 'sal-90cm': return 'Şal 90 cm';
+      default: return model;
     }
   };
 
@@ -50,6 +77,8 @@ const AnaSayfa: React.FC = () => {
       case 'suprem': return 'Süprem';
       case 'lakost': return 'Lakost';
       case 'yagmurdesen': return 'Yağmurdesen';
+      case '3iplik': return '3 İplik';
+      case 'polar': return 'Polar';
       default: return tur;
     }
   };
@@ -132,6 +161,15 @@ const AnaSayfa: React.FC = () => {
     }
   };
 
+  const handleModalSil = async (siparis: Siparis) => {
+    const confirmMessage = `Bu siparişi tamamen silmek istediğinizden emin misiniz?\n\nSipariş: #${siparis.siparisNo} - ${siparis.musteriIsmi}\nDurum: Beklemede\n\nBu işlem geri alınamaz!`;
+    
+    if (window.confirm(confirmMessage)) {
+      await siparisSil(siparis.id);
+      modalKapat();
+    }
+  };
+
   const handleYazdir = (siparis: Siparis) => {
     // Yazdırma şablonunu oluştur
     const yazdirmaIcerigi = `
@@ -168,8 +206,8 @@ const AnaSayfa: React.FC = () => {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: white;
             color: #333;
-            font-size: 11px;
-            line-height: 1.3;
+            font-size: 14px;
+            line-height: 1.4;
           }
           
           .yazdir-container {
@@ -197,7 +235,7 @@ const AnaSayfa: React.FC = () => {
           }
           
           .header-left .urun-ozet {
-            font-size: 12px;
+            font-size: 15px;
             color: #666;
             font-weight: 500;
           }
@@ -210,12 +248,12 @@ const AnaSayfa: React.FC = () => {
           }
           
           .header-right .tarih {
-            font-size: 10px;
+            font-size: 13px;
             color: #666;
           }
           
           .header-right .siparis-no {
-            font-size: 14px;
+            font-size: 17px;
             font-weight: bold;
             color: #333;
             background: #e9ecef;
@@ -256,7 +294,7 @@ const AnaSayfa: React.FC = () => {
           .urun-gorseli .gorsel-yok {
             text-align: center;
             color: #999;
-            font-size: 10px;
+            font-size: 13px;
             font-style: italic;
           }
           
@@ -269,7 +307,7 @@ const AnaSayfa: React.FC = () => {
           }
           
           .urun-ozellikleri h3 {
-            font-size: 12px;
+            font-size: 15px;
             font-weight: bold;
             color: #333;
             margin-bottom: 8px;
@@ -292,12 +330,12 @@ const AnaSayfa: React.FC = () => {
           .ozellik-label {
             font-weight: 600;
             color: #555;
-            font-size: 10px;
+            font-size: 13px;
           }
           
           .ozellik-value {
             color: #333;
-            font-size: 10px;
+            font-size: 13px;
             text-align: right;
             font-weight: 500;
           }
@@ -311,7 +349,7 @@ const AnaSayfa: React.FC = () => {
           }
           
           .beden-tablosu-container h3 {
-            font-size: 12px;
+            font-size: 15px;
             font-weight: bold;
             color: #333;
             margin-bottom: 8px;
@@ -341,7 +379,7 @@ const AnaSayfa: React.FC = () => {
           .beden-item .beden {
             font-weight: 650;
             color: #333;
-            font-size: clamp(10px, 2.2vw, 13px);
+            font-size: clamp(16px, 3vw, 20px);
             display: block;
             margin-bottom: 3px;
             padding-bottom: 2px;
@@ -350,7 +388,7 @@ const AnaSayfa: React.FC = () => {
           
           .beden-item .adet {
             color: #333;
-            font-size: clamp(10px, 2.2vw, 13px);
+            font-size: clamp(16px, 3vw, 20px);
             font-weight: 650;
             margin-top: 2px;
           }
@@ -364,7 +402,7 @@ const AnaSayfa: React.FC = () => {
           }
           
           .notlar-container h3 {
-            font-size: 12px;
+            font-size: 15px;
             font-weight: bold;
             color: #333;
             margin-bottom: 8px;
@@ -377,7 +415,7 @@ const AnaSayfa: React.FC = () => {
             border: 1px solid #ddd;
             border-radius: 3px;
             padding: 8px;
-            font-size: 10px;
+            font-size: 13px;
             color: #333;
             line-height: 1.4;
             min-height: 40px;
@@ -391,7 +429,15 @@ const AnaSayfa: React.FC = () => {
           <div class="header">
             <div class="header-left">
               <h1>${siparis.musteriIsmi}</h1>
-              <p class="urun-ozet">${yakaTuruMetni(siparis.yakaTuru)} ${kolTuruMetni(siparis.kolTuru)} ${siparis.renkIsmi} ${siparisTuruMetni(siparis.siparisTuru)}</p>
+                              <p class="urun-ozet">${
+                siparis.siparisTuru === '3iplik' 
+                  ? `${siparisTuruMetni(siparis.siparisTuru)} ${siparis.renkIsmi} ${ucIplikModeliMetni(siparis.ucIplikModeli)}`
+                  : siparis.siparisTuru === 'polar' 
+                    ? siparis.polarModeli 
+                      ? `${siparisTuruMetni(siparis.siparisTuru)} ${siparis.renkIsmi} ${polarModeliMetni(siparis.polarModeli)}`
+                      : `${siparisTuruMetni(siparis.siparisTuru)} ${siparis.renkIsmi} (Model Belirtilmemiş)`
+                    : `${yakaTuruMetni(siparis.yakaTuru)} ${kolTuruMetni(siparis.kolTuru)} ${siparis.renkIsmi} ${siparisTuruMetni(siparis.siparisTuru)}`
+              }</p>
             </div>
             <div class="header-right">
               <div class="tarih">${siparis.tarih.toLocaleDateString('tr-TR')}</div>
@@ -417,14 +463,26 @@ const AnaSayfa: React.FC = () => {
                 <span class="ozellik-label">Renk:</span>
                 <span class="ozellik-value">${siparis.renkIsmi}</span>
               </div>
-              <div class="ozellik-item">
-                <span class="ozellik-label">Kol Türü:</span>
-                <span class="ozellik-value">${kolTuruMetni(siparis.kolTuru)}</span>
-              </div>
-              <div class="ozellik-item">
-                <span class="ozellik-label">Yaka Türü:</span>
-                <span class="ozellik-value">${yakaTuruMetni(siparis.yakaTuru)}</span>
-              </div>
+              ${siparis.siparisTuru === '3iplik' ? `
+                <div class="ozellik-item">
+                  <span class="ozellik-label">Model:</span>
+                  <span class="ozellik-value">${ucIplikModeliMetni(siparis.ucIplikModeli)}</span>
+                </div>
+              ` : siparis.siparisTuru === 'polar' ? `
+                <div class="ozellik-item">
+                  <span class="ozellik-label">Model:</span>
+                  <span class="ozellik-value">${siparis.polarModeli ? polarModeliMetni(siparis.polarModeli) : 'Belirtilmemiş'}</span>
+                </div>
+              ` : `
+                <div class="ozellik-item">
+                  <span class="ozellik-label">Kol Türü:</span>
+                  <span class="ozellik-value">${kolTuruMetni(siparis.kolTuru)}</span>
+                </div>
+                <div class="ozellik-item">
+                  <span class="ozellik-label">Yaka Türü:</span>
+                  <span class="ozellik-value">${yakaTuruMetni(siparis.yakaTuru)}</span>
+                </div>
+              `}
               <div class="ozellik-item">
                 <span class="ozellik-label">Nakış/Baskı:</span>
                 <span class="ozellik-value">${nakisBaskiMetni(siparis.nakisBaskiDurumu)}</span>
@@ -443,7 +501,7 @@ const AnaSayfa: React.FC = () => {
                   .map(([beden, adet]) => `
                     <div class="beden-item">
                       <div class="beden">${beden}</div>
-                      <div class="adet">${adet} adet</div>
+                      <div class="adet">${adet}</div>
                     </div>
                   `).join('')}
               </div>
@@ -522,7 +580,7 @@ const AnaSayfa: React.FC = () => {
               onClick={() => setSiralama(siralama === 'yeni-eski' ? 'eski-yeni' : 'yeni-eski')}
               title={siralama === 'yeni-eski' ? 'Eski siparişleri üstte göster' : 'Yeni siparişleri üstte göster'}
             >
-              {siralama === 'yeni-eski' ? '📅 ↓' : '📅 ↑'}
+              {siralama === 'yeni-eski' ? '↓' : '↑'}
             </button>
           </div>
         </div>
@@ -552,7 +610,15 @@ const AnaSayfa: React.FC = () => {
                   <h3>{siparis.musteriIsmi} #{siparis.siparisNo} - {siparis.tarih.toLocaleDateString('tr-TR')}</h3>
                 </div>
                 <div className="siparis-detaylar">
-                  <p>{siparis.toplamUrun} adet {yakaTuruMetni(siparis.yakaTuru)} {kolTuruMetni(siparis.kolTuru)} {siparis.renkIsmi} {siparisTuruMetni(siparis.siparisTuru)}</p>
+                  <p>{siparis.toplamUrun} adet {
+                    siparis.siparisTuru === '3iplik' 
+                      ? `${siparisTuruMetni(siparis.siparisTuru)} ${siparis.renkIsmi} ${ucIplikModeliMetni(siparis.ucIplikModeli)}`
+                      : siparis.siparisTuru === 'polar' 
+                        ? siparis.polarModeli 
+                          ? `${siparisTuruMetni(siparis.siparisTuru)} ${siparis.renkIsmi} ${polarModeliMetni(siparis.polarModeli)}`
+                          : `${siparisTuruMetni(siparis.siparisTuru)} ${siparis.renkIsmi} (Model Belirtilmemiş)`
+                        : `${yakaTuruMetni(siparis.yakaTuru)} ${kolTuruMetni(siparis.kolTuru)} ${siparis.renkIsmi} ${siparisTuruMetni(siparis.siparisTuru)}`
+                  }</p>
                 </div>
               </div>
               <div className="siparis-actions">
@@ -597,8 +663,16 @@ const AnaSayfa: React.FC = () => {
               <div className="detay-grup">
                 <h3>Ürün Bilgileri</h3>
                 <p><strong>Renk:</strong> {seciliSiparis.renkIsmi}</p>
-                <p><strong>Kol Türü:</strong> {kolTuruMetni(seciliSiparis.kolTuru)}</p>
-                <p><strong>Yaka Türü:</strong> {yakaTuruMetni(seciliSiparis.yakaTuru)}</p>
+                {seciliSiparis.siparisTuru === '3iplik' ? (
+                  <p><strong>Model:</strong> {ucIplikModeliMetni(seciliSiparis.ucIplikModeli)}</p>
+                ) : seciliSiparis.siparisTuru === 'polar' ? (
+                  <p><strong>Model:</strong> {polarModeliMetni(seciliSiparis.polarModeli)}</p>
+                ) : (
+                  <>
+                    <p><strong>Kol Türü:</strong> {kolTuruMetni(seciliSiparis.kolTuru)}</p>
+                    <p><strong>Yaka Türü:</strong> {yakaTuruMetni(seciliSiparis.yakaTuru)}</p>
+                  </>
+                )}
                 <p><strong>Nakış/Baskı:</strong> {nakisBaskiMetni(seciliSiparis.nakisBaskiDurumu)}</p>
                 <p><strong>Toplam Ürün:</strong> {seciliSiparis.toplamUrun} adet</p>
               </div>
@@ -611,7 +685,13 @@ const AnaSayfa: React.FC = () => {
                     <div className="urun-gorsel-container">
                       <img src={seciliSiparis.kombinasyonGorsel} alt="Ürün Görseli" />
                       <div className="gorsel-bilgi">
-                        <p><strong>Kombinasyon:</strong> {siparisTuruMetni(seciliSiparis.siparisTuru)} - {seciliSiparis.renkIsmi} - {kolTuruMetni(seciliSiparis.kolTuru)} - {yakaTuruMetni(seciliSiparis.yakaTuru)}</p>
+                        <p><strong>Kombinasyon:</strong> {
+                          seciliSiparis.siparisTuru === '3iplik' 
+                            ? `${siparisTuruMetni(seciliSiparis.siparisTuru)} ${seciliSiparis.renkIsmi} ${ucIplikModeliMetni(seciliSiparis.ucIplikModeli)}`
+                            : seciliSiparis.siparisTuru === 'polar' 
+                              ? `${siparisTuruMetni(seciliSiparis.siparisTuru)} ${seciliSiparis.renkIsmi} ${polarModeliMetni(seciliSiparis.polarModeli)}`
+                              : `${siparisTuruMetni(seciliSiparis.siparisTuru)} - ${seciliSiparis.renkIsmi} - ${kolTuruMetni(seciliSiparis.kolTuru)} - ${yakaTuruMetni(seciliSiparis.yakaTuru)}`
+                        }</p>
                       </div>
                     </div>
                   ) : (
@@ -619,7 +699,13 @@ const AnaSayfa: React.FC = () => {
                       <span>📷</span>
                       <p>Bu kombinasyon için görsel bulunamadı</p>
                       <div className="kombinasyon-bilgi">
-                        <p><strong>Kombinasyon:</strong> {siparisTuruMetni(seciliSiparis.siparisTuru)} - {seciliSiparis.renkIsmi} - {kolTuruMetni(seciliSiparis.kolTuru)} - {yakaTuruMetni(seciliSiparis.yakaTuru)}</p>
+                        <p><strong>Kombinasyon:</strong> {
+                          seciliSiparis.siparisTuru === '3iplik' 
+                            ? `${siparisTuruMetni(seciliSiparis.siparisTuru)} ${seciliSiparis.renkIsmi} ${ucIplikModeliMetni(seciliSiparis.ucIplikModeli)}`
+                            : seciliSiparis.siparisTuru === 'polar' 
+                              ? `${siparisTuruMetni(seciliSiparis.siparisTuru)} ${seciliSiparis.renkIsmi} ${polarModeliMetni(seciliSiparis.polarModeli)}`
+                              : `${siparisTuruMetni(seciliSiparis.siparisTuru)} - ${seciliSiparis.renkIsmi} - ${kolTuruMetni(seciliSiparis.kolTuru)} - ${yakaTuruMetni(seciliSiparis.yakaTuru)}`
+                        }</p>
                       </div>
                     </div>
                   )}
@@ -665,6 +751,12 @@ const AnaSayfa: React.FC = () => {
                   onClick={() => handleModalIptal(seciliSiparis.id)}
                 >
                   ✗ Siparişi İptal Et
+                </button>
+                <button
+                  className="siparis-sil-btn"
+                  onClick={() => handleModalSil(seciliSiparis)}
+                >
+                  🗑️ Siparişi Sil
                 </button>
               </div>
             </div>

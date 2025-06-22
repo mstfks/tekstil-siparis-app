@@ -14,7 +14,9 @@ export interface Renk {
 export type KolTuru = 'kisa' | 'uzun' | 'yetim' | 'kisa-ribanali';
 export type YakaTuru = 'bisiklet' | 'v' | 'polo';
 export type NakisBaskiDurumu = 'on' | 'on-arka' | 'on-1kol' | 'on-kollar' | 'arka' | 'arka-1kol' | 'arka-kollar' | '1kol' | 'kollar' | 'on-arka-kollar' | 'dikilecek' | 'sorulacak';
-export type SiparisTuru = 'suprem' | 'lakost' | 'yagmurdesen';
+export type SiparisTuru = 'suprem' | 'lakost' | 'yagmurdesen' | '3iplik' | 'polar';
+export type UcIplikModeli = 'dik-yaka-mont' | 'bisiklet-yaka-sivit' | 'kapusonlu-sivit' | 'kisa-fermuarli-sivit' | 'kapusonlu-mont' | 'polo-yaka-sivit';
+export type PolarModeli = 'dik-yaka-mont' | 'kisa-fermuarli-sivit' | 'kapusonlu-mont' | 'sal-70cm' | 'sal-90cm';
 export type SiparisDurumu = 'beklemede' | 'tamamlandi' | 'iptal';
 
 export interface BedenTablosu {
@@ -34,8 +36,10 @@ export interface UrunKombinasyonu {
   id: string;
   siparisTuru: SiparisTuru;
   renkId: string;
-  kolTuru: KolTuru;
-  yakaTuru: YakaTuru;
+  kolTuru?: KolTuru; // 3 İplik için opsiyonel
+  yakaTuru?: YakaTuru; // 3 İplik için opsiyonel
+  ucIplikModeli?: UcIplikModeli; // 3 İplik için model
+  polarModeli?: PolarModeli; // Polar için model
   gorsel: string;
   isim: string; // Kolay tanımlama için
 }
@@ -49,8 +53,10 @@ export interface Siparis {
   musteriIsmi: string;
   renkId: string;
   renkIsmi: string;
-  kolTuru: KolTuru;
-  yakaTuru: YakaTuru;
+  kolTuru?: KolTuru; // 3 İplik için opsiyonel
+  yakaTuru?: YakaTuru; // 3 İplik için opsiyonel
+  ucIplikModeli?: UcIplikModeli; // 3 İplik için model
+  polarModeli?: PolarModeli; // Polar için model
   nakisBaskiDurumu: NakisBaskiDurumu;
   bedenTablosu: BedenTablosu;
   toplamUrun: number;

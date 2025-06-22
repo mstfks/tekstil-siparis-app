@@ -6,6 +6,7 @@ const MusterilerSayfasi: React.FC = () => {
   const [yeniMusteriIsmi, setYeniMusteriIsmi] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
+  const [dragOverItem, setDragOverItem] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,22 +26,35 @@ const MusterilerSayfasi: React.FC = () => {
   const handleDragStart = (e: React.DragEvent, musteriId: string) => {
     setDraggedItem(musteriId);
     e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', musteriId);
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent, musteriId: string) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
+    
+    if (draggedItem && draggedItem !== musteriId) {
+      setDragOverItem(musteriId);
+    }
   };
 
-  const handleDrop = (e: React.DragEvent, targetMusteriId: string) => {
+  const handleDragLeave = (e: React.DragEvent) => {
+    // Sadece ana element'ten çıkıldığında drag-over'ı temizle
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDragOverItem(null);
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetMusteriId: string) => {
     e.preventDefault();
+    setDragOverItem(null);
     
     if (draggedItem && draggedItem !== targetMusteriId) {
       const draggedMusteri = musteriler.find(m => m.id === draggedItem);
       const targetMusteri = musteriler.find(m => m.id === targetMusteriId);
       
       if (draggedMusteri && targetMusteri) {
-        musteriSirala(draggedItem, targetMusteri.sira);
+        await musteriSirala(draggedItem, targetMusteri.sira);
       }
     }
     
@@ -49,6 +63,7 @@ const MusterilerSayfasi: React.FC = () => {
 
   const handleDragEnd = () => {
     setDraggedItem(null);
+    setDragOverItem(null);
   };
 
   return (
@@ -101,18 +116,20 @@ const MusterilerSayfasi: React.FC = () => {
             {musteriler.map((musteri, index) => (
               <div 
                 key={musteri.id} 
-                className={`musteri-kart ${draggedItem === musteri.id ? 'dragging' : ''}`}
+                className={`musteri-kart ${
+                  draggedItem === musteri.id ? 'dragging' : ''
+                } ${
+                  dragOverItem === musteri.id ? 'drag-over' : ''
+                }`}
                 draggable
                 onDragStart={(e) => handleDragStart(e, musteri.id)}
-                onDragOver={handleDragOver}
+                onDragOver={(e) => handleDragOver(e, musteri.id)}
+                onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, musteri.id)}
                 onDragEnd={handleDragEnd}
               >
                 <div className="drag-handle">
                   <span>⋮⋮</span>
-                </div>
-                <div className="musteri-sira">
-                  {index + 1}
                 </div>
                 <div className="musteri-bilgi">
                   <h3>{musteri.isim}</h3>
@@ -135,7 +152,14 @@ const MusterilerSayfasi: React.FC = () => {
       </div>
 
       <div className="sayfa-footer">
-        <p>Toplam {musteriler.length} müşteri</p>
+        <div className="toplam-musteri-container">
+          <div className="cizgi-sol"></div>
+          <div className="toplam-musteri-badge">
+            <span className="toplam-icon">👥</span>
+            <span className="toplam-text">Toplam {musteriler.length} Müşteri</span>
+          </div>
+          <div className="cizgi-sag"></div>
+        </div>
       </div>
     </div>
   );

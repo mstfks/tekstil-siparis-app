@@ -30,6 +30,11 @@ export const musteriAPI = {
   
   updateOrder: async (id: string, newOrder: number): Promise<void> => {
     await api.put(`/musteriler/${id}`, { sira: newOrder });
+  },
+
+  updateOrderBatch: async (siralamaListesi: Array<{ id: string; sira: number }>): Promise<Musteri[]> => {
+    const response = await api.put('/musteriler', { siralamaListesi });
+    return response.data;
   }
 };
 
@@ -51,6 +56,11 @@ export const renkAPI = {
   
   updateOrder: async (id: string, newOrder: number): Promise<void> => {
     await api.put(`/renkler/${id}`, { sira: newOrder });
+  },
+
+  updateOrderBatch: async (siralamaListesi: Array<{ id: string; sira: number }>): Promise<Renk[]> => {
+    const response = await api.put('/renkler', { siralamaListesi });
+    return response.data;
   }
 };
 
@@ -97,6 +107,10 @@ export const siparisAPI = {
   
   updateStatus: async (id: string, durum: 'beklemede' | 'tamamlandi' | 'iptal'): Promise<void> => {
     await api.put(`/siparisler/${id}`, { durum });
+  },
+
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/siparisler/${id}`);
   }
 };
 

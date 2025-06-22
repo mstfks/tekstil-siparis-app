@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAppContext } from '../context/AppContext';
-import { KolTuru, YakaTuru, NakisBaskiDurumu, BedenTablosu, SiparisTuru } from '../types';
+import { KolTuru, YakaTuru, NakisBaskiDurumu, BedenTablosu, SiparisTuru, UcIplikModeli, PolarModeli } from '../types';
 
 const SiparisSayfasi: React.FC = () => {
   const router = useRouter();
@@ -19,7 +19,10 @@ const SiparisSayfasi: React.FC = () => {
     renkId: '',
     kolTuru: 'kisa' as KolTuru,
     yakaTuru: 'bisiklet' as YakaTuru,
+    ucIplikModeli: 'dik-yaka-mont' as UcIplikModeli,
+    polarModeli: 'dik-yaka-mont' as PolarModeli,
     nakisBaskiDurumu: 'on' as NakisBaskiDurumu,
+    siparisTarihi: new Date().toISOString().split('T')[0], // Bugünün tarihi YYYY-MM-DD formatında
     not: '',
   });
 
@@ -41,6 +44,8 @@ const SiparisSayfasi: React.FC = () => {
     { value: 'suprem', label: 'Süprem' },
     { value: 'lakost', label: 'Lakost' },
     { value: 'yagmurdesen', label: 'Yağmurdesen' },
+    { value: '3iplik', label: '3 İplik' },
+    { value: 'polar', label: 'Polar' },
   ];
 
   const nakisBaskiSecenekleri = [
@@ -58,10 +63,33 @@ const SiparisSayfasi: React.FC = () => {
     { value: 'sorulacak', label: 'Sorulacak' },
   ];
 
+  const ucIplikModelleri = [
+    { value: 'dik-yaka-mont', label: 'Dik Yaka Mont' },
+    { value: 'bisiklet-yaka-sivit', label: 'Bisiklet Yaka Sivit' },
+    { value: 'kapusonlu-sivit', label: 'Kapüşonlu Sivit' },
+    { value: 'kisa-fermuarli-sivit', label: 'Kısa Fermuarlı Sivit' },
+    { value: 'kapusonlu-mont', label: 'Kapüşonlu Mont' },
+    { value: 'polo-yaka-sivit', label: 'Polo Yaka Sivit' },
+  ];
+
+  const polarModelleri = [
+    { value: 'dik-yaka-mont', label: 'Dik Yaka Mont' },
+    { value: 'kisa-fermuarli-sivit', label: 'Kısa Fermuarlı Sivit' },
+    { value: 'kapusonlu-mont', label: 'Kapüşonlu Mont' },
+    { value: 'sal-70cm', label: 'Şal 70 cm' },
+    { value: 'sal-90cm', label: 'Şal 90 cm' },
+  ];
+
   // Kombinasyon görselini bul
   const getKombinasyonGorsel = () => {
     if (formData.renkId) {
-      return kombinasyonBul(formData.siparisTuru, formData.renkId, formData.kolTuru, formData.yakaTuru);
+      if (formData.siparisTuru === '3iplik') {
+        return kombinasyonBul(formData.siparisTuru, formData.renkId, undefined, undefined, formData.ucIplikModeli);
+      } else if (formData.siparisTuru === 'polar') {
+        return kombinasyonBul(formData.siparisTuru, formData.renkId, undefined, undefined, undefined, formData.polarModeli);
+      } else {
+        return kombinasyonBul(formData.siparisTuru, formData.renkId, formData.kolTuru, formData.yakaTuru);
+      }
     }
     return undefined;
   };
@@ -155,18 +183,28 @@ const SiparisSayfasi: React.FC = () => {
 
     const tumBedenler = { ...bedenTablosu, ...ekstraBedenler };
 
-    await siparisEkle({
+    const siparisData: any = {
       siparisTuru: formData.siparisTuru,
       musteriId: formData.musteriId,
       musteriIsmi: seciliMusteri.isim,
       renkId: formData.renkId,
       renkIsmi: seciliRenk.isim,
-      kolTuru: formData.kolTuru,
-      yakaTuru: formData.yakaTuru,
       nakisBaskiDurumu: formData.nakisBaskiDurumu,
       bedenTablosu: tumBedenler,
       not: formData.not,
-    });
+    };
+
+    // 3 İplik için model ekle, diğerleri için kol ve yaka bilgisi ekle
+    if (formData.siparisTuru === '3iplik') {
+      siparisData.ucIplikModeli = formData.ucIplikModeli;
+    } else if (formData.siparisTuru === 'polar') {
+      siparisData.polarModeli = formData.polarModeli;
+    } else {
+      siparisData.kolTuru = formData.kolTuru;
+      siparisData.yakaTuru = formData.yakaTuru;
+    }
+
+    await siparisEkle(siparisData);
 
     alert('Sipariş başarıyla oluşturuldu!');
     router.push('/');
@@ -185,7 +223,7 @@ const SiparisSayfasi: React.FC = () => {
         <form onSubmit={handleSubmit} className="siparis-form">
           <div className="form-row">
             <div className="form-grup">
-              <label htmlFor="siparisTuru">Sipariş Türü *</label>
+              <label htmlFor="siparisTuru">Sipariş Türü</label>
               <select
                 id="siparisTuru"
                 name="siparisTuru"
@@ -203,7 +241,7 @@ const SiparisSayfasi: React.FC = () => {
             </div>
 
             <div className="form-grup">
-              <label htmlFor="musteriId">Müşteri *</label>
+              <label htmlFor="musteriId">Müşteri</label>
               <select
                 id="musteriId"
                 name="musteriId"
@@ -224,7 +262,7 @@ const SiparisSayfasi: React.FC = () => {
 
           <div className="form-row">
             <div className="form-grup">
-              <label htmlFor="renkId">Renk *</label>
+              <label htmlFor="renkId">Renk</label>
               <select
                 id="renkId"
                 name="renkId"
@@ -243,6 +281,21 @@ const SiparisSayfasi: React.FC = () => {
             </div>
 
             <div className="form-grup">
+              <label htmlFor="siparisTarihi">Sipariş Tarihi</label>
+              <input
+                type="date"
+                id="siparisTarihi"
+                name="siparisTarihi"
+                value={formData.siparisTarihi}
+                onChange={handleInputChange}
+                required
+                className="modern-input date-input"
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-grup">
               <label htmlFor="nakisBaskiDurumu">Nakış/Baskı Durumu</label>
               <select
                 id="nakisBaskiDurumu"
@@ -258,42 +311,92 @@ const SiparisSayfasi: React.FC = () => {
                 ))}
               </select>
             </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-grup">
-              <label htmlFor="kolTuru">Kol Bilgisi</label>
-              <select
-                id="kolTuru"
-                name="kolTuru"
-                value={formData.kolTuru}
-                onChange={handleInputChange}
-                className="modern-select"
-              >
-                <option value="kisa">Kısa Kol</option>
-                <option value="uzun">Uzun Kol</option>
-                <option value="yetim">Yetim Kol</option>
-                <option value="kisa-ribanali">Kısa Ribanalı</option>
-              </select>
-            </div>
 
             <div className="form-grup">
-              <label htmlFor="yakaTuru">Yaka Bilgisi</label>
-              <select
-                id="yakaTuru"
-                name="yakaTuru"
-                value={formData.yakaTuru}
-                onChange={handleInputChange}
-                className="modern-select"
-              >
-                <option value="bisiklet">Bisiklet Yaka</option>
-                <option value="v">V Yaka</option>
-                <option value="polo">Polo Yaka</option>
-              </select>
+              {/* Bu alan boş bırakıldı, gerektiğinde başka alan eklenebilir */}
             </div>
           </div>
 
+          {formData.siparisTuru === '3iplik' ? (
+            <div className="form-row">
+              <div className="form-grup">
+                <label htmlFor="ucIplikModeli">Model</label>
+                <select
+                  id="ucIplikModeli"
+                  name="ucIplikModeli"
+                  value={formData.ucIplikModeli}
+                  onChange={handleInputChange}
+                  className="modern-select"
+                >
+                  {ucIplikModelleri.map(model => (
+                    <option key={model.value} value={model.value}>
+                      {model.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
+              <div className="form-grup">
+                {/* Bu alan boş bırakıldı */}
+              </div>
+            </div>
+          ) : formData.siparisTuru === 'polar' ? (
+            <div className="form-row">
+              <div className="form-grup">
+                <label htmlFor="polarModeli">Model</label>
+                <select
+                  id="polarModeli"
+                  name="polarModeli"
+                  value={formData.polarModeli}
+                  onChange={handleInputChange}
+                  className="modern-select"
+                >
+                  {polarModelleri.map(model => (
+                    <option key={model.value} value={model.value}>
+                      {model.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-grup">
+                {/* Bu alan boş bırakıldı */}
+              </div>
+            </div>
+          ) : (
+            <div className="form-row">
+              <div className="form-grup">
+                <label htmlFor="kolTuru">Kol Bilgisi</label>
+                <select
+                  id="kolTuru"
+                  name="kolTuru"
+                  value={formData.kolTuru}
+                  onChange={handleInputChange}
+                  className="modern-select"
+                >
+                  <option value="kisa">Kısa Kol</option>
+                  <option value="uzun">Uzun Kol</option>
+                  <option value="yetim">Yetim Kol</option>
+                  <option value="kisa-ribanali">Kısa Ribanalı</option>
+                </select>
+              </div>
+
+              <div className="form-grup">
+                <label htmlFor="yakaTuru">Yaka Bilgisi</label>
+                <select
+                  id="yakaTuru"
+                  name="yakaTuru"
+                  value={formData.yakaTuru}
+                  onChange={handleInputChange}
+                  className="modern-select"
+                >
+                  <option value="bisiklet">Bisiklet Yaka</option>
+                  <option value="v">V Yaka</option>
+                  <option value="polo">Polo Yaka</option>
+                </select>
+              </div>
+            </div>
+          )}
 
           <div className="form-grup">
             <label>Beden Tablosu</label>
@@ -358,15 +461,16 @@ const SiparisSayfasi: React.FC = () => {
             </div>
           </div>
 
-          <div className="form-grup">
+          <div className="form-grup not-alani">
             <label htmlFor="not">Ekstra Not</label>
             <textarea
               id="not"
               name="not"
               value={formData.not}
               onChange={handleInputChange}
-              rows={4}
-              placeholder="İsteğe bağlı notlar..."
+              rows={6}
+              placeholder="Siparişle ilgili özel notlar, dikkat edilmesi gereken hususlar veya ek bilgiler yazabilirsiniz..."
+              className="genis-not-alani"
             />
           </div>
 
@@ -395,18 +499,28 @@ const SiparisSayfasi: React.FC = () => {
                   <div className="kombinasyon-detaylar">
                     <p><strong>Sipariş Türü:</strong> {
                       formData.siparisTuru === 'suprem' ? 'Süprem' : 
-                      formData.siparisTuru === 'lakost' ? 'Lakost' : 'Yağmurdesen'
+                      formData.siparisTuru === 'lakost' ? 'Lakost' : 
+                      formData.siparisTuru === 'yagmurdesen' ? 'Yağmurdesen' : 
+                      formData.siparisTuru === '3iplik' ? '3 İplik' : 'Polar'
                     }</p>
                     <p><strong>Renk:</strong> {renkler.find(r => r.id === formData.renkId)?.isim}</p>
-                    <p><strong>Kol Türü:</strong> {
-                      formData.kolTuru === 'kisa' ? 'Kısa Kol' : 
-                      formData.kolTuru === 'uzun' ? 'Uzun Kol' : 
-                      formData.kolTuru === 'yetim' ? 'Yetim Kol' : 'Kısa Ribanalı'
-                    }</p>
-                    <p><strong>Yaka Türü:</strong> {
-                      formData.yakaTuru === 'bisiklet' ? 'Bisiklet Yaka' : 
-                      formData.yakaTuru === 'v' ? 'V Yaka' : 'Polo Yaka'
-                    }</p>
+                    {formData.siparisTuru === '3iplik' ? (
+                      <p><strong>Model:</strong> {ucIplikModelleri.find(m => m.value === formData.ucIplikModeli)?.label}</p>
+                    ) : formData.siparisTuru === 'polar' ? (
+                      <p><strong>Model:</strong> {polarModelleri.find(m => m.value === formData.polarModeli)?.label}</p>
+                    ) : (
+                      <>
+                        <p><strong>Kol Türü:</strong> {
+                          formData.kolTuru === 'kisa' ? 'Kısa Kol' : 
+                          formData.kolTuru === 'uzun' ? 'Uzun Kol' : 
+                          formData.kolTuru === 'yetim' ? 'Yetim Kol' : 'Kısa Ribanalı'
+                        }</p>
+                        <p><strong>Yaka Türü:</strong> {
+                          formData.yakaTuru === 'bisiklet' ? 'Bisiklet Yaka' : 
+                          formData.yakaTuru === 'v' ? 'V Yaka' : 'Polo Yaka'
+                        }</p>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -421,14 +535,22 @@ const SiparisSayfasi: React.FC = () => {
                       <p><strong>Seçili Kombinasyon:</strong></p>
                       <p>{
                         formData.siparisTuru === 'suprem' ? 'Süprem' : 
-                        formData.siparisTuru === 'lakost' ? 'Lakost' : 'Yağmurdesen'
-                      } - {renkler.find(r => r.id === formData.renkId)?.isim} - {
-                        formData.kolTuru === 'kisa' ? 'Kısa Kol' : 
-                        formData.kolTuru === 'uzun' ? 'Uzun Kol' : 
-                        formData.kolTuru === 'yetim' ? 'Yetim Kol' : 'Kısa Ribanalı'
-                      } - {
-                        formData.yakaTuru === 'bisiklet' ? 'Bisiklet Yaka' : 
-                        formData.yakaTuru === 'v' ? 'V Yaka' : 'Polo Yaka'
+                        formData.siparisTuru === 'lakost' ? 'Lakost' : 
+                        formData.siparisTuru === 'yagmurdesen' ? 'Yağmurdesen' : 
+                        formData.siparisTuru === '3iplik' ? '3 İplik' : 'Polar'
+                      } - {renkler.find(r => r.id === formData.renkId)?.isim}{
+                        formData.siparisTuru === '3iplik' 
+                          ? ` - ${ucIplikModelleri.find(m => m.value === formData.ucIplikModeli)?.label}`
+                          : formData.siparisTuru === 'polar' 
+                            ? ` - ${polarModelleri.find(m => m.value === formData.polarModeli)?.label}`
+                            : ` - ${
+                                formData.kolTuru === 'kisa' ? 'Kısa Kol' : 
+                                formData.kolTuru === 'uzun' ? 'Uzun Kol' : 
+                                formData.kolTuru === 'yetim' ? 'Yetim Kol' : 'Kısa Ribanalı'
+                              } - ${
+                                formData.yakaTuru === 'bisiklet' ? 'Bisiklet Yaka' : 
+                                formData.yakaTuru === 'v' ? 'V Yaka' : 'Polo Yaka'
+                              }`
                       }</p>
                     </div>
                   )}

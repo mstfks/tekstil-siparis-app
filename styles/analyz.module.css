@@ -1,0 +1,462 @@
+.analyzSayfasi {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.sayfaHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.sayfaHeader h1 {
+  font-size: 28px;
+  color: #333;
+  margin: 0;
+}
+
+.periyotFiltreleri {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.periyotBtn {
+  padding: 8px 16px;
+  border: 2px solid #007bff;
+  background: white;
+  color: #007bff;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.periyotBtn:hover {
+  background: #007bff;
+  color: white;
+}
+
+.aktif {
+  background: #007bff !important;
+  color: white !important;
+}
+
+.bosDurum {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  font-size: 18px;
+}
+
+.analyzIcerik {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.istatistikKartlari {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.istatistikKarti {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 25px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.kartIkon {
+  font-size: 40px;
+  opacity: 0.8;
+}
+
+.kartIcerik h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.buyukSayi {
+  margin: 0;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.kucukMetin {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.analyzBolumu {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.analyzBolumu h2 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 20px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 10px;
+}
+
+.ciftliBolum {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.dagilimListesi {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.dagilimSatiri {
+  display: grid;
+  grid-template-columns: 1fr 2fr auto;
+  align-items: center;
+  gap: 15px;
+}
+
+.dagilimEtiket {
+  font-weight: 500;
+  color: #333;
+}
+
+.dagilimBar {
+  background: #f0f0f0;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.dagilimDolgu {
+  background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+  height: 100%;
+  transition: width 0.3s ease;
+  min-width: 2px;
+}
+
+.dagilimDeger {
+  font-weight: 600;
+  color: #666;
+  text-align: right;
+  min-width: 80px;
+}
+
+.populerListe {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.populerSatir {
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.siraNo {
+  background: #007bff;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.populerIsim {
+  font-weight: 500;
+  color: #333;
+}
+
+.populerAdet {
+  color: #666;
+  font-size: 14px;
+}
+
+.trendGrafik {
+  background: #f8f9fa;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.trendHeader {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 10px;
+  padding: 15px 20px;
+  background: #e9ecef;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.trendSatir {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 10px;
+  padding: 12px 20px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.trendSatir:last-child {
+  border-bottom: none;
+}
+
+.trendAy {
+  color: #333;
+  font-weight: 500;
+}
+
+.trendSiparis,
+.trendUrun,
+.trendTur {
+  color: #666;
+  text-align: center;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .sayfaHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ciftliBolum {
+    grid-template-columns: 1fr;
+  }
+
+  .periyotFiltreleri {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .periyotBtn {
+    font-size: 14px;
+    padding: 6px 12px;
+  }
+
+  .analyzSayfasi {
+    padding: 15px;
+  }
+
+  .istatistikKarti {
+    padding: 20px;
+  }
+
+  .kartIkon {
+    font-size: 30px;
+  }
+
+  .buyukSayi {
+    font-size: 24px;
+  }
+
+  .trendHeader {
+    grid-template-columns: 1fr;
+    gap: 5px;
+    font-size: 12px;
+  }
+
+  .trendSatir {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .trendHeader span,
+  .trendSatir span {
+    padding: 5px;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .trendAy {
+    font-weight: bold;
+    background: #f8f9fa;
+  }
+}
+
+/* Müşteri Tablosu Stilleri */
+.musteriHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.sayfalamaBilgi {
+  display: flex;
+  gap: 15px;
+  font-size: 14px;
+  color: #666;
+}
+
+.musteriTablosu {
+  background: #f8f9fa;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.musteriTabloBasi {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1.2fr;
+  gap: 10px;
+  padding: 15px 20px;
+  background: #e9ecef;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.musteriTabloSatiri {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1.2fr;
+  gap: 10px;
+  padding: 12px 20px;
+  border-bottom: 1px solid #dee2e6;
+  transition: background-color 0.2s ease;
+}
+
+.musteriTabloSatiri:hover {
+  background-color: #ffffff;
+}
+
+.musteriTabloSatiri:last-child {
+  border-bottom: none;
+}
+
+.musteriIsim {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  color: #333;
+}
+
+.musteriSiraNo {
+  background: #007bff;
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.musteriAdet,
+.musteriSiparis,
+.musteriTur {
+  color: #666;
+  text-align: center;
+  font-size: 14px;
+}
+
+.musteriTarih {
+  color: #666;
+  text-align: center;
+  font-size: 13px;
+}
+
+/* Sayfalama Stilleri */
+.sayfalama {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  margin-top: 20px;
+}
+
+.sayfalamaBtn {
+  padding: 8px 12px;
+  border: 1px solid #dee2e6;
+  background: white;
+  color: #666;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  min-width: 40px;
+}
+
+.sayfalamaBtn:hover:not(:disabled) {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.sayfalamaBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.aktifSayfa {
+  background: #007bff !important;
+  color: white !important;
+  border-color: #007bff !important;
+}
+
+/* Responsive Tasarım - Müşteri Tablosu */
+@media (max-width: 768px) {
+  .musteriHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .musteriTabloBasi,
+  .musteriTabloSatiri {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .musteriTabloBasi span,
+  .musteriTabloSatiri span {
+    padding: 5px 0;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .musteriIsim {
+    font-weight: bold;
+    background: #f8f9fa;
+    padding: 10px !important;
+    border-radius: 4px;
+  }
+
+  .sayfalama {
+    flex-wrap: wrap;
+  }
+
+  .sayfalamaBtn {
+    padding: 6px 10px;
+    font-size: 12px;
+    min-width: 35px;
+  }
+} 

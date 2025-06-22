@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { SiparisTuru, KolTuru, YakaTuru } from '../types';
+import { SiparisTuru, KolTuru, YakaTuru, UcIplikModeli, PolarModeli } from '../types';
 
 const GorsellerSayfasi: React.FC = () => {
   const { 
@@ -16,6 +16,8 @@ const GorsellerSayfasi: React.FC = () => {
     renkId: '',
     kolTuru: 'kisa' as KolTuru,
     yakaTuru: 'bisiklet' as YakaTuru,
+    ucIplikModeli: 'dik-yaka-mont' as UcIplikModeli,
+    polarModeli: 'dik-yaka-mont' as PolarModeli,
     isim: '',
   });
 
@@ -24,7 +26,9 @@ const GorsellerSayfasi: React.FC = () => {
   const [acikGruplar, setAcikGruplar] = useState<{ [key: string]: boolean }>({
     suprem: false,
     lakost: false,
-    yagmurdesen: false
+    yagmurdesen: false,
+    '3iplik': false,
+    polar: false
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -46,18 +50,42 @@ const GorsellerSayfasi: React.FC = () => {
       
       const siparisTuruText = data.siparisTuru === 'suprem' ? 'Süprem' : 
                               data.siparisTuru === 'lakost' ? 'Lakost' : 
-                              data.siparisTuru === 'yagmurdesen' ? 'Yağmurdesen' : data.siparisTuru;
+                              data.siparisTuru === 'yagmurdesen' ? 'Yağmurdesen' : 
+                              data.siparisTuru === '3iplik' ? '3 İplik' : 
+                              data.siparisTuru === 'polar' ? 'Polar' : data.siparisTuru;
       
-      const kolTuruText = data.kolTuru === 'kisa' ? 'Kısa Kol' : 
-                          data.kolTuru === 'uzun' ? 'Uzun Kol' : 
-                          data.kolTuru === 'yetim' ? 'Yetim Kol' :
-                          data.kolTuru === 'kisa-ribanali' ? 'Kısa Ribanalı' : data.kolTuru;
+      let autoName = '';
       
-      const yakaTuruText = data.yakaTuru === 'bisiklet' ? 'Bisiklet Yaka' : 
-                           data.yakaTuru === 'v' ? 'V Yaka' :
-                           data.yakaTuru === 'polo' ? 'Polo Yaka' : data.yakaTuru;
+      if (data.siparisTuru === '3iplik') {
+        const modelText = data.ucIplikModeli === 'dik-yaka-mont' ? 'Dik Yaka Mont' :
+                         data.ucIplikModeli === 'bisiklet-yaka-sivit' ? 'Bisiklet Yaka Sivit' :
+                         data.ucIplikModeli === 'kapusonlu-sivit' ? 'Kapüşonlu Sivit' :
+                         data.ucIplikModeli === 'kisa-fermuarli-sivit' ? 'Kısa Fermuarlı Sivit' :
+                         data.ucIplikModeli === 'kapusonlu-mont' ? 'Kapüşonlu Mont' :
+                         data.ucIplikModeli === 'polo-yaka-sivit' ? 'Polo Yaka Sivit' : data.ucIplikModeli;
+        
+        autoName = `${siparisTuruText} - ${renk?.isim} - ${modelText}`;
+      } else if (data.siparisTuru === 'polar') {
+        const modelText = data.polarModeli === 'dik-yaka-mont' ? 'Dik Yaka Mont' :
+                         data.polarModeli === 'kisa-fermuarli-sivit' ? 'Kısa Fermuarlı Sivit' :
+                         data.polarModeli === 'kapusonlu-mont' ? 'Kapüşonlu Mont' :
+                         data.polarModeli === 'sal-70cm' ? 'Şal 70 cm' :
+                         data.polarModeli === 'sal-90cm' ? 'Şal 90 cm' : data.polarModeli;
+        
+        autoName = `${siparisTuruText} - ${renk?.isim} - ${modelText}`;
+      } else {
+        const kolTuruText = data.kolTuru === 'kisa' ? 'Kısa Kol' : 
+                            data.kolTuru === 'uzun' ? 'Uzun Kol' : 
+                            data.kolTuru === 'yetim' ? 'Yetim Kol' :
+                            data.kolTuru === 'kisa-ribanali' ? 'Kısa Ribanalı' : data.kolTuru;
+        
+        const yakaTuruText = data.yakaTuru === 'bisiklet' ? 'Bisiklet Yaka' : 
+                             data.yakaTuru === 'v' ? 'V Yaka' :
+                             data.yakaTuru === 'polo' ? 'Polo Yaka' : data.yakaTuru;
+        
+        autoName = `${siparisTuruText} - ${renk?.isim} - ${kolTuruText} - ${yakaTuruText}`;
+      }
       
-      const autoName = `${siparisTuruText} - ${renk?.isim} - ${kolTuruText} - ${yakaTuruText}`;
       setFormData(prev => ({ ...prev, isim: autoName }));
     }
   };
@@ -85,20 +113,38 @@ const GorsellerSayfasi: React.FC = () => {
     }
 
     // Daha önce kaydedilmiş kombinasyon kontrolü
-    const mevcutKombinasyon = kombinasyonBul(formData.siparisTuru, formData.renkId, formData.kolTuru, formData.yakaTuru);
+    let mevcutKombinasyon;
+    if (formData.siparisTuru === '3iplik') {
+      mevcutKombinasyon = kombinasyonBul(formData.siparisTuru, formData.renkId, undefined, undefined, formData.ucIplikModeli);
+    } else if (formData.siparisTuru === 'polar') {
+      mevcutKombinasyon = kombinasyonBul(formData.siparisTuru, formData.renkId, undefined, undefined, undefined, formData.polarModeli);
+    } else {
+      mevcutKombinasyon = kombinasyonBul(formData.siparisTuru, formData.renkId, formData.kolTuru, formData.yakaTuru);
+    }
+    
     if (mevcutKombinasyon) {
       alert('Bu kombinasyon için zaten bir görsel kaydedilmiş. Lütfen farklı bir kombinasyon seçin.');
       return;
     }
 
-    await kombinasyonEkle({
+    const kombinasyonData: any = {
       siparisTuru: formData.siparisTuru,
       renkId: formData.renkId,
-      kolTuru: formData.kolTuru,
-      yakaTuru: formData.yakaTuru,
       gorsel: '', // Bu değer API'de Cloudinary URL ile doldurulacak
       isim: formData.isim || 'İsimsiz Kombinasyon'
-    }, selectedFile);
+    };
+
+    // 3 İplik için model ekle, diğerleri için kol ve yaka bilgisi ekle
+    if (formData.siparisTuru === '3iplik') {
+      kombinasyonData.ucIplikModeli = formData.ucIplikModeli;
+    } else if (formData.siparisTuru === 'polar') {
+      kombinasyonData.polarModeli = formData.polarModeli;
+    } else {
+      kombinasyonData.kolTuru = formData.kolTuru;
+      kombinasyonData.yakaTuru = formData.yakaTuru;
+    }
+
+    await kombinasyonEkle(kombinasyonData, selectedFile);
 
     // Formu ilk haline döndür
     setFormData({
@@ -106,6 +152,8 @@ const GorsellerSayfasi: React.FC = () => {
       renkId: '',
       kolTuru: 'kisa',
       yakaTuru: 'bisiklet',
+      ucIplikModeli: 'dik-yaka-mont',
+      polarModeli: 'dik-yaka-mont',
       isim: '',
     });
     setSelectedFile(null);
@@ -143,7 +191,9 @@ const GorsellerSayfasi: React.FC = () => {
     setAcikGruplar({
       suprem: yeniDurum,
       lakost: yeniDurum,
-      yagmurdesen: yeniDurum
+      yagmurdesen: yeniDurum,
+      '3iplik': yeniDurum,
+      polar: yeniDurum
     });
   };
 
@@ -185,6 +235,8 @@ const GorsellerSayfasi: React.FC = () => {
                   <option value="suprem">Süprem</option>
                   <option value="lakost">Lakost</option>
                   <option value="yagmurdesen">Yağmurdesen</option>
+                  <option value="3iplik">3 İplik</option>
+                  <option value="polar">Polar</option>
                 </select>
               </div>
 
@@ -207,41 +259,85 @@ const GorsellerSayfasi: React.FC = () => {
               </div>
             </div>
 
-            <div className="form-row">
-              <div className="form-grup">
-                <label htmlFor="kolTuru">Kol Türü</label>
-                <select
-                  id="kolTuru"
-                  name="kolTuru"
-                  value={formData.kolTuru}
-                  onChange={handleInputChange}
-                  required
-                >
-                  {kolTurleri.map(kol => (
-                    <option key={kol.value} value={kol.value}>
-                      {kol.label}
-                    </option>
-                  ))}
-                </select>
+            {formData.siparisTuru === '3iplik' ? (
+              <div className="form-row">
+                <div className="form-grup">
+                  <label htmlFor="ucIplikModeli">Model</label>
+                  <select
+                    id="ucIplikModeli"
+                    name="ucIplikModeli"
+                    value={formData.ucIplikModeli}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="dik-yaka-mont">Dik Yaka Mont</option>
+                    <option value="bisiklet-yaka-sivit">Bisiklet Yaka Sivit</option>
+                    <option value="kapusonlu-sivit">Kapüşonlu Sivit</option>
+                    <option value="kisa-fermuarli-sivit">Kısa Fermuarlı Sivit</option>
+                    <option value="kapusonlu-mont">Kapüşonlu Mont</option>
+                    <option value="polo-yaka-sivit">Polo Yaka Sivit</option>
+                  </select>
+                </div>
+                <div className="form-grup">
+                  {/* Boş alan */}
+                </div>
               </div>
+            ) : formData.siparisTuru === 'polar' ? (
+              <div className="form-row">
+                <div className="form-grup">
+                  <label htmlFor="polarModeli">Model</label>
+                  <select
+                    id="polarModeli"
+                    name="polarModeli"
+                    value={formData.polarModeli}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="dik-yaka-mont">Dik Yaka Mont</option>
+                    <option value="kisa-fermuarli-sivit">Kısa Fermuarlı Sivit</option>
+                    <option value="kapusonlu-mont">Kapüşonlu Mont</option>
+                    <option value="sal-70cm">Şal 70 cm</option>
+                    <option value="sal-90cm">Şal 90 cm</option>
+                  </select>
+                </div>
+              </div>
+            ) : (
+              <div className="form-row">
+                <div className="form-grup">
+                  <label htmlFor="kolTuru">Kol Türü</label>
+                  <select
+                    id="kolTuru"
+                    name="kolTuru"
+                    value={formData.kolTuru}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    {kolTurleri.map(kol => (
+                      <option key={kol.value} value={kol.value}>
+                        {kol.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              <div className="form-grup">
-                <label htmlFor="yakaTuru">Yaka Türü</label>
-                <select
-                  id="yakaTuru"
-                  name="yakaTuru"
-                  value={formData.yakaTuru}
-                  onChange={handleInputChange}
-                  required
-                >
-                  {yakaTurleri.map(yaka => (
-                    <option key={yaka.value} value={yaka.value}>
-                      {yaka.label}
-                    </option>
-                  ))}
-                </select>
+                <div className="form-grup">
+                  <label htmlFor="yakaTuru">Yaka Türü</label>
+                  <select
+                    id="yakaTuru"
+                    name="yakaTuru"
+                    value={formData.yakaTuru}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    {yakaTurleri.map(yaka => (
+                      <option key={yaka.value} value={yaka.value}>
+                        {yaka.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="form-grup">
               <label htmlFor="isim">Kombinasyon İsmi</label>
@@ -297,7 +393,7 @@ const GorsellerSayfasi: React.FC = () => {
             </div>
           ) : (
             <div className="kombinasyon-gruplari">
-              {['suprem', 'lakost', 'yagmurdesen'].map(siparisTuru => {
+              {['suprem', 'lakost', 'yagmurdesen', '3iplik', 'polar'].map(siparisTuru => {
                 const kombinasyonlar = urunKombinasyonlari.filter(k => k.siparisTuru === siparisTuru);
                 
                 if (kombinasyonlar.length === 0) return null;
@@ -310,7 +406,9 @@ const GorsellerSayfasi: React.FC = () => {
                     >
                       <h3>
                         {siparisTuru === 'suprem' ? 'Süprem' : 
-                         siparisTuru === 'lakost' ? 'Lakost' : 'Yağmurdesen'} 
+                         siparisTuru === 'lakost' ? 'Lakost' : 
+                         siparisTuru === 'yagmurdesen' ? 'Yağmurdesen' : 
+                         siparisTuru === '3iplik' ? '3 İplik' : 'Polar'} 
                         ({kombinasyonlar.length})
                       </h3>
                       <div className={`toggle-icon ${acikGruplar[siparisTuru] ? 'acik' : 'kapali'}`}>
@@ -331,8 +429,29 @@ const GorsellerSayfasi: React.FC = () => {
                               <h4>{kombinasyon.isim}</h4>
                               <div className="kombinasyon-detaylar">
                                 <p><strong>Renk:</strong> {getRenkIsmi(kombinasyon.renkId)}</p>
-                                <p><strong>Kol:</strong> {kolTurleri.find(k => k.value === kombinasyon.kolTuru)?.label}</p>
-                                <p><strong>Yaka:</strong> {yakaTurleri.find(y => y.value === kombinasyon.yakaTuru)?.label}</p>
+                                {siparisTuru === '3iplik' ? (
+                                  <p><strong>Model:</strong> {
+                                    kombinasyon.ucIplikModeli === 'dik-yaka-mont' ? 'Dik Yaka Mont' :
+                                    kombinasyon.ucIplikModeli === 'bisiklet-yaka-sivit' ? 'Bisiklet Yaka Sivit' :
+                                    kombinasyon.ucIplikModeli === 'kapusonlu-sivit' ? 'Kapüşonlu Sivit' :
+                                    kombinasyon.ucIplikModeli === 'kisa-fermuarli-sivit' ? 'Kısa Fermuarlı Sivit' :
+                                    kombinasyon.ucIplikModeli === 'kapusonlu-mont' ? 'Kapüşonlu Mont' :
+                                    kombinasyon.ucIplikModeli === 'polo-yaka-sivit' ? 'Polo Yaka Sivit' : kombinasyon.ucIplikModeli
+                                  }</p>
+                                ) : siparisTuru === 'polar' ? (
+                                  <p><strong>Model:</strong> {
+                                    kombinasyon.polarModeli === 'dik-yaka-mont' ? 'Dik Yaka Mont' :
+                                    kombinasyon.polarModeli === 'kisa-fermuarli-sivit' ? 'Kısa Fermuarlı Sivit' :
+                                    kombinasyon.polarModeli === 'kapusonlu-mont' ? 'Kapüşonlu Mont' :
+                                    kombinasyon.polarModeli === 'sal-70cm' ? 'Şal 70 cm' :
+                                    kombinasyon.polarModeli === 'sal-90cm' ? 'Şal 90 cm' : kombinasyon.polarModeli
+                                  }</p>
+                                ) : (
+                                  <>
+                                    <p><strong>Kol:</strong> {kolTurleri.find(k => k.value === kombinasyon.kolTuru)?.label}</p>
+                                    <p><strong>Yaka:</strong> {yakaTurleri.find(y => y.value === kombinasyon.yakaTuru)?.label}</p>
+                                  </>
+                                )}
                               </div>
                               <button 
                                 className="sil-btn"

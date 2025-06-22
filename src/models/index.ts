@@ -17,8 +17,10 @@ const RenkSchema = new mongoose.Schema({
 const UrunKombinasyonuSchema = new mongoose.Schema({
   siparisTuru: { type: String, required: true },
   renkId: { type: mongoose.Schema.Types.ObjectId, ref: 'Renk', required: true },
-  kolTuru: { type: String, required: true },
-  yakaTuru: { type: String, required: true },
+  kolTuru: { type: String, required: false }, // 3 İplik için opsiyonel
+  yakaTuru: { type: String, required: false }, // 3 İplik için opsiyonel
+  ucIplikModeli: { type: String, required: false }, // 3 İplik için model
+  polarModeli: { type: String, required: false }, // Polar için model
   gorsel: { type: String, required: true }, // Cloudinary URL
   isim: { type: String, required: true }
 }, { timestamps: true });
@@ -32,8 +34,10 @@ const SiparisSchema = new mongoose.Schema({
   musteriIsmi: { type: String, required: true },
   renkId: { type: mongoose.Schema.Types.ObjectId, ref: 'Renk', required: true },
   renkIsmi: { type: String, required: true },
-  kolTuru: { type: String, required: true },
-  yakaTuru: { type: String, required: true },
+  kolTuru: { type: String, required: false }, // 3 İplik için opsiyonel
+  yakaTuru: { type: String, required: false }, // 3 İplik için opsiyonel
+  ucIplikModeli: { type: String, required: false }, // 3 İplik için model
+  polarModeli: { type: String, required: false }, // Polar için model
   nakisBaskiDurumu: { type: String, required: true },
   bedenTablosu: { type: mongoose.Schema.Types.Mixed, required: true },
   toplamUrun: { type: Number, required: true },

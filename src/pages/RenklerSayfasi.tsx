@@ -3,18 +3,19 @@ import { useAppContext } from '../context/AppContext';
 
 const RenklerSayfasi: React.FC = () => {
   const { renkler, renkEkle, renkSil, renkSirala } = useAppContext();
-  const [yeniRenk, setYeniRenk] = useState({ isim: '', kod: '#000000' });
+  const [yeniRenkIsmi, setYeniRenkIsmi] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
+  const [dragOverItem, setDragOverItem] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (yeniRenk.isim.trim()) {
+    if (yeniRenkIsmi.trim()) {
       await renkEkle({
-        isim: yeniRenk.isim.trim(),
-        kod: yeniRenk.kod
+        isim: yeniRenkIsmi.trim(),
+        kod: '#000000' // Default renk kodu
       });
-      setYeniRenk({ isim: '', kod: '#000000' });
+      setYeniRenkIsmi('');
       setShowForm(false);
     }
   };
@@ -22,22 +23,35 @@ const RenklerSayfasi: React.FC = () => {
   const handleDragStart = (e: React.DragEvent, renkId: string) => {
     setDraggedItem(renkId);
     e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', renkId);
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent, renkId: string) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
+    
+    if (draggedItem && draggedItem !== renkId) {
+      setDragOverItem(renkId);
+    }
   };
 
-  const handleDrop = (e: React.DragEvent, targetRenkId: string) => {
+  const handleDragLeave = (e: React.DragEvent) => {
+    // Sadece ana element'ten çıkıldığında drag-over'ı temizle
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDragOverItem(null);
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetRenkId: string) => {
     e.preventDefault();
+    setDragOverItem(null);
     
     if (draggedItem && draggedItem !== targetRenkId) {
       const draggedRenk = renkler.find(r => r.id === draggedItem);
       const targetRenk = renkler.find(r => r.id === targetRenkId);
       
       if (draggedRenk && targetRenk) {
-        renkSirala(draggedItem, targetRenk.sira);
+        await renkSirala(draggedItem, targetRenk.sira);
       }
     }
     
@@ -46,6 +60,7 @@ const RenklerSayfasi: React.FC = () => {
 
   const handleDragEnd = () => {
     setDraggedItem(null);
+    setDragOverItem(null);
   };
 
   const handleSil = async (id: string, isim: string) => {
@@ -55,11 +70,7 @@ const RenklerSayfasi: React.FC = () => {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setYeniRenk(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setYeniRenkIsmi(e.target.value);
   };
 
   return (
@@ -83,7 +94,7 @@ const RenklerSayfasi: React.FC = () => {
                 type="text"
                 id="renkIsmi"
                 name="isim"
-                value={yeniRenk.isim}
+                value={yeniRenkIsmi}
                 onChange={handleInputChange}
                 placeholder="Renk ismini giriniz"
                 required
@@ -113,18 +124,20 @@ const RenklerSayfasi: React.FC = () => {
             {renkler.map((renk, index) => (
               <div 
                 key={renk.id} 
-                className={`renk-kart ${draggedItem === renk.id ? 'dragging' : ''}`}
+                className={`renk-kart ${
+                  draggedItem === renk.id ? 'dragging' : ''
+                } ${
+                  dragOverItem === renk.id ? 'drag-over' : ''
+                }`}
                 draggable
                 onDragStart={(e) => handleDragStart(e, renk.id)}
-                onDragOver={handleDragOver}
+                onDragOver={(e) => handleDragOver(e, renk.id)}
+                onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, renk.id)}
                 onDragEnd={handleDragEnd}
               >
                 <div className="drag-handle">
                   <span>⋮⋮</span>
-                </div>
-                <div className="renk-sira">
-                  {index + 1}
                 </div>
                 <div className="renk-bilgi">
                   <h3>{renk.isim}</h3>
@@ -147,7 +160,14 @@ const RenklerSayfasi: React.FC = () => {
       </div>
 
       <div className="sayfa-footer">
-        <p>Toplam {renkler.length} renk</p>
+        <div className="toplam-renk-container">
+          <div className="cizgi-sol"></div>
+          <div className="toplam-renk-badge">
+            <span className="toplam-icon">🎨</span>
+            <span className="toplam-text">Toplam {renkler.length} Renk</span>
+          </div>
+          <div className="cizgi-sag"></div>
+        </div>
       </div>
     </div>
   );

@@ -12,16 +12,17 @@ interface AppContextType {
   renkEkle: (renk: Omit<Renk, 'id' | 'sira'>) => Promise<void>;
   siparisEkle: (siparis: Omit<Siparis, 'id' | 'siparisNo' | 'tarih' | 'durum' | 'toplamUrun' | 'kombinasyonGorsel'>) => Promise<void>;
   musteriSil: (id: string) => Promise<void>;
-  musteriSirala: (musteriId: string, yeniSira: number) => void;
+  musteriSirala: (musteriId: string, yeniSira: number) => Promise<void>;
   renkSil: (id: string) => Promise<void>;
-  renkSirala: (renkId: string, yeniSira: number) => void;
+  renkSirala: (renkId: string, yeniSira: number) => Promise<void>;
   siparisTamamla: (id: string) => Promise<void>;
   siparisIptal: (id: string) => Promise<void>;
   siparisAktifeDonustur: (id: string) => Promise<void>;
+  siparisSil: (id: string) => Promise<void>;
   // Kombinasyon yönetimi
   kombinasyonEkle: (kombinasyon: Omit<UrunKombinasyonu, 'id'>, file: File) => Promise<void>;
   kombinasyonSil: (id: string) => Promise<void>;
-  kombinasyonBul: (siparisTuru: string, renkId: string, kolTuru: string, yakaTuru: string) => UrunKombinasyonu | undefined;
+  kombinasyonBul: (siparisTuru: string, renkId: string, kolTuru?: string, yakaTuru?: string, ucIplikModeli?: string, polarModeli?: string) => UrunKombinasyonu | undefined;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -100,7 +101,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   const siparisEkle = async (siparis: Omit<Siparis, 'id' | 'siparisNo' | 'tarih' | 'durum' | 'toplamUrun' | 'kombinasyonGorsel'>) => {
     try {
-      const kombinasyon = kombinasyonBul(siparis.siparisTuru, siparis.renkId, siparis.kolTuru, siparis.yakaTuru);
+      const kombinasyon = kombinasyonBul(siparis.siparisTuru, siparis.renkId, siparis.kolTuru, siparis.yakaTuru, siparis.ucIplikModeli, siparis.polarModeli);
       
       const siparisData = {
         ...siparis,
@@ -130,7 +131,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   };
 
-  const musteriSirala = (musteriId: string, yeniSira: number) => {
+  const musteriSirala = async (musteriId: string, yeniSira: number) => {
     setMusteriler(prev => {
       const musteriler = [...prev];
       const musteriIndex = musteriler.findIndex(m => m.id === musteriId);
@@ -151,6 +152,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         }
       });
       
+      // API'ye kaydet
+      const siralamaListesi = musteriler.map(m => ({ id: m.id, sira: m.sira }));
+      musteriAPI.updateOrderBatch(siralamaListesi).catch(error => {
+        console.error('Müşteri sıralaması kaydedilirken hata:', error);
+        alert('Müşteri sıralaması kaydedilirken bir hata oluştu.');
+      });
+      
       return musteriler.sort((a, b) => a.sira - b.sira);
     });
   };
@@ -165,7 +173,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   };
 
-  const renkSirala = (renkId: string, yeniSira: number) => {
+  const renkSirala = async (renkId: string, yeniSira: number) => {
     setRenkler(prev => {
       const renkler = [...prev];
       const renkIndex = renkler.findIndex(r => r.id === renkId);
@@ -184,6 +192,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         } else if (eskiSira > yeniSira && r.sira >= yeniSira && r.sira < eskiSira) {
           r.sira += 1;
         }
+      });
+      
+      // API'ye kaydet
+      const siralamaListesi = renkler.map(r => ({ id: r.id, sira: r.sira }));
+      renkAPI.updateOrderBatch(siralamaListesi).catch(error => {
+        console.error('Renk sıralaması kaydedilirken hata:', error);
+        alert('Renk sıralaması kaydedilirken bir hata oluştu.');
       });
       
       return renkler.sort((a, b) => a.sira - b.sira);
@@ -238,6 +253,16 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   };
 
+  const siparisSil = async (id: string) => {
+    try {
+      await siparisAPI.delete(id);
+      setSiparisler(prev => prev.filter(s => s.id !== id));
+    } catch (error) {
+      console.error('Sipariş silinirken hata:', error);
+      alert('Sipariş silinirken bir hata oluştu.');
+    }
+  };
+
   // Kombinasyon yönetimi fonksiyonları
   const kombinasyonEkle = async (kombinasyon: Omit<UrunKombinasyonu, 'id'>, file: File) => {
     try {
@@ -277,7 +302,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   };
 
-  const kombinasyonBul = (siparisTuru: string, renkId: string, kolTuru: string, yakaTuru: string) => {
+  const kombinasyonBul = (siparisTuru: string, renkId: string, kolTuru?: string, yakaTuru?: string, ucIplikModeli?: string, polarModeli?: string) => {
     return urunKombinasyonlari.find(k => {
       // renkId karşılaştırması - hem string hem de populate edilmiş obje için
       const kombinasyonRenkId = typeof k.renkId === 'object' && (k.renkId as any)?.id ? (k.renkId as any).id : k.renkId;
@@ -287,6 +312,21 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                            (typeof k.renkId === 'object' && (k.renkId as any)?._id === renkId) ||
                            (typeof k.renkId === 'string' && k.renkId.toString() === renkId.toString());
       
+      // 3 İplik için farklı karşılaştırma
+      if (siparisTuru === '3iplik') {
+        return k.siparisTuru === siparisTuru &&
+          renkIdEslesir &&
+          k.ucIplikModeli === ucIplikModeli;
+      }
+      
+      // Polar için farklı karşılaştırma
+      if (siparisTuru === 'polar') {
+        return k.siparisTuru === siparisTuru &&
+          renkIdEslesir &&
+          k.polarModeli === polarModeli;
+      }
+      
+      // Diğer sipariş türleri için mevcut karşılaştırma
       return k.siparisTuru === siparisTuru &&
         renkIdEslesir &&
         k.kolTuru === kolTuru &&
@@ -310,6 +350,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     siparisTamamla,
     siparisIptal,
     siparisAktifeDonustur,
+    siparisSil,
     kombinasyonEkle,
     kombinasyonSil,
     kombinasyonBul,

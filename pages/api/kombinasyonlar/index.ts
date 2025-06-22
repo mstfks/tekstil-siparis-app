@@ -46,13 +46,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const renkId = Array.isArray(fields.renkId) ? fields.renkId[0] : fields.renkId;
         const kolTuru = Array.isArray(fields.kolTuru) ? fields.kolTuru[0] : fields.kolTuru;
         const yakaTuru = Array.isArray(fields.yakaTuru) ? fields.yakaTuru[0] : fields.yakaTuru;
+        const ucIplikModeli = Array.isArray(fields.ucIplikModeli) ? fields.ucIplikModeli[0] : fields.ucIplikModeli;
+        const polarModeli = Array.isArray(fields.polarModeli) ? fields.polarModeli[0] : fields.polarModeli;
         const isim = Array.isArray(fields.isim) ? fields.isim[0] : fields.isim;
         
         // Dosyayı çıkar
         const file = Array.isArray(files.file) ? files.file[0] : files.file;
         
-        if (!file || !siparisTuru || !renkId || !kolTuru || !yakaTuru) {
+        if (!file || !siparisTuru || !renkId) {
           return res.status(400).json({ error: 'Eksik parametreler' });
+        }
+
+        // Sipariş türüne göre gerekli alanları kontrol et
+        if (siparisTuru === '3iplik' && !ucIplikModeli) {
+          return res.status(400).json({ error: '3 İplik için model gerekli' });
+        }
+        
+        if (siparisTuru === 'polar' && !polarModeli) {
+          return res.status(400).json({ error: 'Polar için model gerekli' });
+        }
+        
+        if (siparisTuru !== '3iplik' && siparisTuru !== 'polar' && (!kolTuru || !yakaTuru)) {
+          return res.status(400).json({ error: 'Kol türü ve yaka türü gerekli' });
         }
 
         // Cloudinary'e yükle
@@ -66,14 +81,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         fs.unlinkSync(file.filepath);
 
         // Veritabanına kaydet
-        const yeniKombinasyon = new UrunKombinasyonu({
+        const kombinasyonData: any = {
           siparisTuru,
           renkId,
-          kolTuru,
-          yakaTuru,
           gorsel: uploadResult.secure_url,
           isim: isim || 'İsimsiz Kombinasyon'
-        });
+        };
+
+        // Sipariş türüne göre alanları ekle
+        if (siparisTuru === '3iplik') {
+          kombinasyonData.ucIplikModeli = ucIplikModeli;
+        } else if (siparisTuru === 'polar') {
+          kombinasyonData.polarModeli = polarModeli;
+        } else {
+          kombinasyonData.kolTuru = kolTuru;
+          kombinasyonData.yakaTuru = yakaTuru;
+        }
+
+        const yeniKombinasyon = new UrunKombinasyonu(kombinasyonData);
 
         await yeniKombinasyon.save();
         await yeniKombinasyon.populate('renkId');

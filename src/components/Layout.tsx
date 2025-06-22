@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 
 interface LayoutProps {
@@ -9,6 +10,23 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setIsCollapsed(true); // Mobilde başlangıçta daraltılmış
+      }
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
 
   const menuItems = [
     { 
@@ -65,11 +83,30 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </svg>
       )
     },
+    { 
+      path: '/analiz', 
+      label: 'Analiz', 
+      icon: (
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M2,2V22H22V20H4V2H2M7,10H9V20H7V10M11,6H13V20H11V6M15,13H17V20H15V13M19,9H21V20H19V9Z"/>
+        </svg>
+      )
+    },
   ];
 
   return (
-    <div className="layout">
-      <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+    <>
+      <Head>
+        <title>ES-ER TEKSTİL SİPARİŞ</title>
+      </Head>
+      <div className="layout">
+        {isMobile && !isCollapsed && (
+          <div 
+            className="sidebar-overlay" 
+            onClick={() => setIsCollapsed(true)}
+          />
+        )}
+      <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobile ? 'mobile' : ''}`}>
         <div className="sidebar-header">
           <div className="logo">
             <svg viewBox="0 0 24 24" fill="currentColor" className="logo-icon">
@@ -77,8 +114,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </svg>
             {!isCollapsed && (
               <div className="logo-text">
-                <h2>Tekstil Sipariş</h2>
-                <p>Yönetim Sistemi</p>
+                <h2>ES-ER TEKSTİL</h2>
+                <p>Sipariş Yönetim Sistemi</p>
               </div>
             )}
           </div>
@@ -112,9 +149,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </aside>
       <main className="main-content">
+        {isMobile && (
+          <button 
+            className="mobile-menu-toggle"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            title="Menü"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"/>
+            </svg>
+          </button>
+        )}
         {children}
       </main>
     </div>
+    </>
   );
 };
 
