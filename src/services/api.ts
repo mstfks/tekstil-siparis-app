@@ -76,8 +76,21 @@ export const kombinasyonAPI = {
     formData.append('file', file);
     formData.append('siparisTuru', kombinasyon.siparisTuru);
     formData.append('renkId', kombinasyon.renkId);
-    formData.append('kolTuru', kombinasyon.kolTuru);
-    formData.append('yakaTuru', kombinasyon.yakaTuru);
+    
+    // Sadece tanımlı olan değerleri ekle
+    if (kombinasyon.kolTuru) {
+      formData.append('kolTuru', kombinasyon.kolTuru);
+    }
+    if (kombinasyon.yakaTuru) {
+      formData.append('yakaTuru', kombinasyon.yakaTuru);
+    }
+    if (kombinasyon.ucIplikModeli) {
+      formData.append('ucIplikModeli', kombinasyon.ucIplikModeli);
+    }
+    if (kombinasyon.polarModeli) {
+      formData.append('polarModeli', kombinasyon.polarModeli);
+    }
+    
     formData.append('isim', kombinasyon.isim);
     
     const response = await api.post('/kombinasyonlar', formData, {
