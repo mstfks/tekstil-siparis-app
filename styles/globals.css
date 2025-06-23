@@ -1362,12 +1362,67 @@ body {
   height: 100%;
 }
 
+.alt-gruplar {
+  margin-top: 15px;
+}
+
+.alt-grup {
+  background: #f8fafc;
+  border: 1px solid #e1e5e9;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.alt-grup:hover {
+  border-color: #cbd5e1;
+}
+
+.alt-grup-baslik {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  background: #fff;
+  border-bottom: 1px solid #e1e5e9;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.alt-grup-baslik:hover {
+  background: #f8fafc;
+}
+
+.alt-grup-baslik h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: #475569;
+  font-weight: 600;
+}
+
+.alt-grup .toggle-icon {
+  width: 18px;
+  height: 18px;
+  color: #64748b;
+  transition: all 0.3s ease;
+}
+
+.alt-grup .toggle-icon.acik {
+  transform: rotate(180deg);
+}
+
+.alt-grup .toggle-icon.kapali {
+  transform: rotate(0deg);
+}
+
 .kombinasyon-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 12px;
   animation: slideDown 0.3s ease-out;
-  margin-top: 8px;
+  padding: 20px;
+  background: #fff;
 }
 
 @keyframes slideDown {
@@ -1416,7 +1471,8 @@ body {
 }
 
 .kombinasyon-bilgi h3,
-.kombinasyon-bilgi h4 {
+.kombinasyon-bilgi h4,
+.kombinasyon-bilgi h5 {
   color: #2c3e50;
   margin-bottom: 10px;
   font-size: 1rem;
@@ -1552,6 +1608,15 @@ body {
   .kombinasyon-grid {
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 12px;
+    padding: 15px;
+  }
+  
+  .alt-grup-baslik {
+    padding: 12px 15px;
+  }
+  
+  .alt-grup-baslik h4 {
+    font-size: 0.9rem;
   }
 
   .kombinasyon-header {

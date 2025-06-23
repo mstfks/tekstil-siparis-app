@@ -31,6 +31,8 @@ const GorsellerSayfasi: React.FC = () => {
     polar: false
   });
 
+  const [acikAltGruplar, setAcikAltGruplar] = useState<{ [key: string]: boolean }>({});
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -184,6 +186,13 @@ const GorsellerSayfasi: React.FC = () => {
     }));
   };
 
+  const toggleAltGrup = (grupKey: string) => {
+    setAcikAltGruplar(prev => ({
+      ...prev,
+      [grupKey]: !prev[grupKey]
+    }));
+  };
+
   const tumunuToggle = () => {
     const tumGruplarAcik = Object.values(acikGruplar).every(Boolean);
     const yeniDurum = !tumGruplarAcik;
@@ -195,6 +204,76 @@ const GorsellerSayfasi: React.FC = () => {
       '3iplik': yeniDurum,
       polar: yeniDurum
     });
+  };
+
+  // Alt grup oluşturma fonksiyonu
+  const getAltGruplar = (kombinasyonlar: any[], siparisTuru: string) => {
+    if (siparisTuru === '3iplik') {
+      const gruplar: { [key: string]: any[] } = {};
+      kombinasyonlar.forEach(k => {
+        const model = k.ucIplikModeli;
+        if (!gruplar[model]) {
+          gruplar[model] = [];
+        }
+        gruplar[model].push(k);
+      });
+      return gruplar;
+    } else if (siparisTuru === 'polar') {
+      const gruplar: { [key: string]: any[] } = {};
+      kombinasyonlar.forEach(k => {
+        const model = k.polarModeli;
+        if (!gruplar[model]) {
+          gruplar[model] = [];
+        }
+        gruplar[model].push(k);
+      });
+      return gruplar;
+    } else {
+      const gruplar: { [key: string]: any[] } = {};
+      kombinasyonlar.forEach(k => {
+        const grupKey = `${k.kolTuru}-${k.yakaTuru}`;
+        if (!gruplar[grupKey]) {
+          gruplar[grupKey] = [];
+        }
+        gruplar[grupKey].push(k);
+      });
+      return gruplar;
+    }
+  };
+
+  const getAltGrupBaslik = (grupKey: string, siparisTuru: string) => {
+    if (siparisTuru === '3iplik') {
+      const modelTercumeleri: { [key: string]: string } = {
+        'dik-yaka-mont': 'Dik Yaka Mont',
+        'bisiklet-yaka-sivit': 'Bisiklet Yaka Sivit',
+        'kapusonlu-sivit': 'Kapüşonlu Sivit',
+        'kisa-fermuarli-sivit': 'Kısa Fermuarlı Sivit',
+        'kapusonlu-mont': 'Kapüşonlu Mont',
+        'polo-yaka-sivit': 'Polo Yaka Sivit'
+      };
+      return modelTercumeleri[grupKey] || grupKey;
+    } else if (siparisTuru === 'polar') {
+      const modelTercumeleri: { [key: string]: string } = {
+        'dik-yaka-mont': 'Dik Yaka Mont',
+        'kisa-fermuarli-sivit': 'Kısa Fermuarlı Sivit',
+        'kapusonlu-mont': 'Kapüşonlu Mont',
+        'sal-70cm': 'Şal 70 cm',
+        'sal-90cm': 'Şal 90 cm'
+      };
+      return modelTercumeleri[grupKey] || grupKey;
+    } else {
+      // Özel durum: kısa-ribanali kol türü için
+      if (grupKey.startsWith('kisa-ribanali-')) {
+        const yakaTuru = grupKey.replace('kisa-ribanali-', '');
+        const yakaText = yakaTurleri.find(y => y.value === yakaTuru)?.label || yakaTuru;
+        return `Kısa Ribanalı - ${yakaText}`;
+      } else {
+        const [kolTuru, yakaTuru] = grupKey.split('-');
+        const kolText = kolTurleri.find(k => k.value === kolTuru)?.label || kolTuru;
+        const yakaText = yakaTurleri.find(y => y.value === yakaTuru)?.label || yakaTuru;
+        return `${kolText} - ${yakaText}`;
+      }
+    }
   };
 
   const kolTurleri = [
@@ -419,49 +498,75 @@ const GorsellerSayfasi: React.FC = () => {
                     </div>
                     
                     {acikGruplar[siparisTuru] && (
-                      <div className="kombinasyon-grid">
-                        {kombinasyonlar.map(kombinasyon => (
-                          <div key={kombinasyon.id} className="kombinasyon-kart">
-                            <div className="kombinasyon-gorsel">
-                              <img src={kombinasyon.gorsel} alt={kombinasyon.isim} />
-                            </div>
-                            <div className="kombinasyon-bilgi">
-                              <h4>{kombinasyon.isim}</h4>
-                              <div className="kombinasyon-detaylar">
-                                <p><strong>Renk:</strong> {getRenkIsmi(kombinasyon.renkId)}</p>
-                                {siparisTuru === '3iplik' ? (
-                                  <p><strong>Model:</strong> {
-                                    kombinasyon.ucIplikModeli === 'dik-yaka-mont' ? 'Dik Yaka Mont' :
-                                    kombinasyon.ucIplikModeli === 'bisiklet-yaka-sivit' ? 'Bisiklet Yaka Sivit' :
-                                    kombinasyon.ucIplikModeli === 'kapusonlu-sivit' ? 'Kapüşonlu Sivit' :
-                                    kombinasyon.ucIplikModeli === 'kisa-fermuarli-sivit' ? 'Kısa Fermuarlı Sivit' :
-                                    kombinasyon.ucIplikModeli === 'kapusonlu-mont' ? 'Kapüşonlu Mont' :
-                                    kombinasyon.ucIplikModeli === 'polo-yaka-sivit' ? 'Polo Yaka Sivit' : kombinasyon.ucIplikModeli
-                                  }</p>
-                                ) : siparisTuru === 'polar' ? (
-                                  <p><strong>Model:</strong> {
-                                    kombinasyon.polarModeli === 'dik-yaka-mont' ? 'Dik Yaka Mont' :
-                                    kombinasyon.polarModeli === 'kisa-fermuarli-sivit' ? 'Kısa Fermuarlı Sivit' :
-                                    kombinasyon.polarModeli === 'kapusonlu-mont' ? 'Kapüşonlu Mont' :
-                                    kombinasyon.polarModeli === 'sal-70cm' ? 'Şal 70 cm' :
-                                    kombinasyon.polarModeli === 'sal-90cm' ? 'Şal 90 cm' : kombinasyon.polarModeli
-                                  }</p>
-                                ) : (
-                                  <>
-                                    <p><strong>Kol:</strong> {kolTurleri.find(k => k.value === kombinasyon.kolTuru)?.label}</p>
-                                    <p><strong>Yaka:</strong> {yakaTurleri.find(y => y.value === kombinasyon.yakaTuru)?.label}</p>
-                                  </>
-                                )}
-                              </div>
-                              <button 
-                                className="sil-btn"
-                                onClick={() => handleDelete(kombinasyon.id)}
+                      <div className="alt-gruplar">
+                        {Object.entries(getAltGruplar(kombinasyonlar, siparisTuru)).map(([altGrupKey, altKombinasyonlar]) => {
+                          const fullGrupKey = `${siparisTuru}-${altGrupKey}`;
+                          
+                          return (
+                            <div key={altGrupKey} className="alt-grup">
+                              <div 
+                                className="alt-grup-baslik"
+                                onClick={() => toggleAltGrup(fullGrupKey)}
                               >
-                                Sil
-                              </button>
+                                <h4>
+                                  {getAltGrupBaslik(altGrupKey, siparisTuru)} ({altKombinasyonlar.length})
+                                </h4>
+                                <div className={`toggle-icon ${acikAltGruplar[fullGrupKey] ? 'acik' : 'kapali'}`}>
+                                  <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
+                                  </svg>
+                                </div>
+                              </div>
+                              
+                              {acikAltGruplar[fullGrupKey] && (
+                                <div className="kombinasyon-grid">
+                                  {altKombinasyonlar.map(kombinasyon => (
+                                    <div key={kombinasyon.id} className="kombinasyon-kart">
+                                      <div className="kombinasyon-gorsel">
+                                        <img src={kombinasyon.gorsel} alt={kombinasyon.isim} />
+                                      </div>
+                                      <div className="kombinasyon-bilgi">
+                                        <h5>{kombinasyon.isim}</h5>
+                                        <div className="kombinasyon-detaylar">
+                                          <p><strong>Renk:</strong> {getRenkIsmi(kombinasyon.renkId)}</p>
+                                          {siparisTuru === '3iplik' ? (
+                                            <p><strong>Model:</strong> {
+                                              kombinasyon.ucIplikModeli === 'dik-yaka-mont' ? 'Dik Yaka Mont' :
+                                              kombinasyon.ucIplikModeli === 'bisiklet-yaka-sivit' ? 'Bisiklet Yaka Sivit' :
+                                              kombinasyon.ucIplikModeli === 'kapusonlu-sivit' ? 'Kapüşonlu Sivit' :
+                                              kombinasyon.ucIplikModeli === 'kisa-fermuarli-sivit' ? 'Kısa Fermuarlı Sivit' :
+                                              kombinasyon.ucIplikModeli === 'kapusonlu-mont' ? 'Kapüşonlu Mont' :
+                                              kombinasyon.ucIplikModeli === 'polo-yaka-sivit' ? 'Polo Yaka Sivit' : kombinasyon.ucIplikModeli
+                                            }</p>
+                                          ) : siparisTuru === 'polar' ? (
+                                            <p><strong>Model:</strong> {
+                                              kombinasyon.polarModeli === 'dik-yaka-mont' ? 'Dik Yaka Mont' :
+                                              kombinasyon.polarModeli === 'kisa-fermuarli-sivit' ? 'Kısa Fermuarlı Sivit' :
+                                              kombinasyon.polarModeli === 'kapusonlu-mont' ? 'Kapüşonlu Mont' :
+                                              kombinasyon.polarModeli === 'sal-70cm' ? 'Şal 70 cm' :
+                                              kombinasyon.polarModeli === 'sal-90cm' ? 'Şal 90 cm' : kombinasyon.polarModeli
+                                            }</p>
+                                          ) : (
+                                            <>
+                                              <p><strong>Kol:</strong> {kolTurleri.find(k => k.value === kombinasyon.kolTuru)?.label}</p>
+                                              <p><strong>Yaka:</strong> {yakaTurleri.find(y => y.value === kombinasyon.yakaTuru)?.label}</p>
+                                            </>
+                                          )}
+                                        </div>
+                                        <button 
+                                          className="sil-btn"
+                                          onClick={() => handleDelete(kombinasyon.id)}
+                                        >
+                                          Sil
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
                   </div>
