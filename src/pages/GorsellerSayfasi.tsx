@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
+import { useUI } from '../context/UIContext';
 import { SiparisTuru, KolTuru, YakaTuru, UcIplikModeli, PolarModeli } from '../types';
 
 const GorsellerSayfasi: React.FC = () => {
@@ -10,6 +11,7 @@ const GorsellerSayfasi: React.FC = () => {
     kombinasyonSil,
     kombinasyonBul
   } = useAppContext();
+  const { showToast, showConfirmModal } = useUI();
 
   const [formData, setFormData] = useState({
     siparisTuru: 'suprem' as SiparisTuru,
@@ -110,7 +112,7 @@ const GorsellerSayfasi: React.FC = () => {
     e.preventDefault();
     
     if (!formData.renkId || !selectedFile) {
-      alert('Lütfen tüm alanları doldurun ve bir görsel seçin.');
+      showToast('Lütfen tüm alanları doldurun ve bir görsel seçin.', 'warning');
       return;
     }
 
@@ -125,7 +127,7 @@ const GorsellerSayfasi: React.FC = () => {
     }
     
     if (mevcutKombinasyon) {
-      alert('Bu kombinasyon için zaten bir görsel kaydedilmiş. Lütfen farklı bir kombinasyon seçin.');
+      showToast('Bu kombinasyon için zaten bir görsel kaydedilmiş. Lütfen farklı bir kombinasyon seçin.', 'warning');
       return;
     }
 
@@ -161,13 +163,18 @@ const GorsellerSayfasi: React.FC = () => {
     setSelectedFile(null);
     setPreviewUrl('');
     
-    alert('Kombinasyon başarıyla eklendi!');
+    showToast('Kombinasyon başarıyla eklendi!', 'success');
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Bu kombinasyonu silmek istediğinizden emin misiniz?')) {
-      await kombinasyonSil(id);
-    }
+    showConfirmModal({
+      title: 'Kombinasyonu Sil',
+      message: 'Bu kombinasyonu silmek istediğinizden emin misiniz?',
+      confirmText: 'Sil',
+      cancelText: 'İptal',
+      type: 'danger',
+      onConfirm: () => kombinasyonSil(id)
+    });
   };
 
   const getRenkIsmi = (renkId: string | any) => {

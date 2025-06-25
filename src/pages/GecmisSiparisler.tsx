@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
+import { useUI } from '../context/UIContext';
 import { Siparis, KolTuru, YakaTuru, UcIplikModeli, PolarModeli } from '../types';
 
 const GecmisSiparisler: React.FC = () => {
   const { siparisler, siparisAktifeDonustur, siparisSil } = useAppContext();
+  const { showConfirmModal } = useUI();
   const [seciliSiparis, setSeciliSiparis] = useState<Siparis | null>(null);
   const [filtre, setFiltre] = useState<'hepsi' | 'tamamlandi' | 'iptal'>('hepsi');
   const [aramaMetni, setAramaMetni] = useState<string>('');
@@ -437,10 +439,17 @@ const GecmisSiparisler: React.FC = () => {
   const handleSiparisSil = async (siparis: Siparis) => {
     const confirmMessage = `Bu siparişi tamamen silmek istediğinizden emin misiniz?\n\nSipariş: #${siparis.siparisNo} - ${siparis.musteriIsmi}\nDurum: ${durumMetni(siparis.durum)}\n\nBu işlem geri alınamaz!`;
     
-    if (window.confirm(confirmMessage)) {
-      await siparisSil(siparis.id);
-      modalKapat();
-    }
+    showConfirmModal({
+      title: 'Siparişi Sil',
+      message: confirmMessage,
+      confirmText: 'Sil',
+      cancelText: 'İptal',
+      type: 'danger',
+      onConfirm: async () => {
+        await siparisSil(siparis.id);
+        modalKapat();
+      }
+    });
   };
 
   const durumMetni = (durum: string) => {
@@ -516,6 +525,8 @@ const GecmisSiparisler: React.FC = () => {
       'arka-kollar': 'Arka ve Kollar',
       '1kol': '1 Kol',
       'kollar': 'Kollar',
+      'on-arka-kollar': 'Ön, Arka ve Kollar',
+      'on-arka-1kol': 'Ön, Arka ve Tek Kol',
       'dikilecek': 'Dikilecek',
       'sorulacak': 'Sorulacak'
     };
@@ -779,11 +790,18 @@ const GecmisSiparisler: React.FC = () => {
                 {(seciliSiparis.durum === 'tamamlandi' || seciliSiparis.durum === 'iptal') && (
                   <button
                     className="geri-donustur-btn"
-                    onClick={async () => {
-                      if (window.confirm('Bu siparişi aktif siparişlere geri döndürmek istediğinizden emin misiniz?')) {
-                        await siparisAktifeDonustur(seciliSiparis.id);
-                        modalKapat();
-                      }
+                    onClick={() => {
+                      showConfirmModal({
+                        title: 'Siparişi Aktife Döndür',
+                        message: 'Bu siparişi aktif siparişlere geri döndürmek istediğinizden emin misiniz?',
+                        confirmText: 'Aktife Döndür',
+                        cancelText: 'İptal',
+                        type: 'info',
+                        onConfirm: async () => {
+                          await siparisAktifeDonustur(seciliSiparis.id);
+                          modalKapat();
+                        }
+                      });
                     }}
                   >
                     ↶ Aktif Siparişlere Geri Döndür

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
+import { useUI } from '../context/UIContext';
 
 const MusterilerSayfasi: React.FC = () => {
   const { musteriler, musteriEkle, musteriSil, musteriSirala } = useAppContext();
+  const { showConfirmModal } = useUI();
   const [yeniMusteriIsmi, setYeniMusteriIsmi] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
@@ -18,9 +20,14 @@ const MusterilerSayfasi: React.FC = () => {
   };
 
   const handleSil = async (id: string, isim: string) => {
-    if (window.confirm(`"${isim}" müşterisini silmek istediğinizden emin misiniz?`)) {
-      await musteriSil(id);
-    }
+    showConfirmModal({
+      title: 'Müşteriyi Sil',
+      message: `"${isim}" müşterisini silmek istediğinizden emin misiniz?`,
+      confirmText: 'Sil',
+      cancelText: 'İptal',
+      type: 'danger',
+      onConfirm: () => musteriSil(id)
+    });
   };
 
   const handleDragStart = (e: React.DragEvent, musteriId: string) => {

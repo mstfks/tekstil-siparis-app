@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Musteri, Renk, Siparis, UrunKombinasyonu } from '../types';
 import { musteriAPI, renkAPI, siparisAPI, kombinasyonAPI } from '../services/api';
+import { useUI } from './UIContext';
 
 interface AppContextType {
   musteriler: Musteri[];
@@ -40,6 +41,7 @@ interface AppProviderProps {
 }
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
+  const { showToast } = useUI();
   const [musteriler, setMusteriler] = useState<Musteri[]>([]);
   const [renkler, setRenkler] = useState<Renk[]>([]);
   const [siparisler, setSiparisler] = useState<Siparis[]>([]);
@@ -85,7 +87,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       setMusteriler(prev => [...prev, { ...yeniMusteri, id: (yeniMusteri as any)._id || yeniMusteri.id }].sort((a, b) => a.sira - b.sira));
     } catch (error) {
       console.error('Müşteri eklenirken hata:', error);
-      alert('Müşteri eklenirken bir hata oluştu.');
+      showToast('Müşteri eklenirken bir hata oluştu.', 'error');
     }
   };
 
@@ -95,7 +97,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       setRenkler(prev => [...prev, { ...yeniRenk, id: (yeniRenk as any)._id || yeniRenk.id }].sort((a, b) => a.sira - b.sira));
     } catch (error) {
       console.error('Renk eklenirken hata:', error);
-      alert('Renk eklenirken bir hata oluştu.');
+      showToast('Renk eklenirken bir hata oluştu.', 'error');
     }
   };
 
@@ -117,7 +119,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       setSiparisNoSayaci(prev => prev + 1);
     } catch (error) {
       console.error('Sipariş eklenirken hata:', error);
-      alert('Sipariş eklenirken bir hata oluştu.');
+      showToast('Sipariş eklenirken bir hata oluştu.', 'error');
     }
   };
 
@@ -127,7 +129,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       setMusteriler(prev => prev.filter(m => m.id !== id));
     } catch (error) {
       console.error('Müşteri silinirken hata:', error);
-      alert('Müşteri silinirken bir hata oluştu.');
+      showToast('Müşteri silinirken bir hata oluştu.', 'error');
     }
   };
 
@@ -156,7 +158,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       const siralamaListesi = musteriler.map(m => ({ id: m.id, sira: m.sira }));
       musteriAPI.updateOrderBatch(siralamaListesi).catch(error => {
         console.error('Müşteri sıralaması kaydedilirken hata:', error);
-        alert('Müşteri sıralaması kaydedilirken bir hata oluştu.');
+        showToast('Müşteri sıralaması kaydedilirken bir hata oluştu.', 'error');
       });
       
       return musteriler.sort((a, b) => a.sira - b.sira);
@@ -169,7 +171,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       setRenkler(prev => prev.filter(r => r.id !== id));
     } catch (error) {
       console.error('Renk silinirken hata:', error);
-      alert('Renk silinirken bir hata oluştu.');
+      showToast('Renk silinirken bir hata oluştu.', 'error');
     }
   };
 
@@ -198,7 +200,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       const siralamaListesi = renkler.map(r => ({ id: r.id, sira: r.sira }));
       renkAPI.updateOrderBatch(siralamaListesi).catch(error => {
         console.error('Renk sıralaması kaydedilirken hata:', error);
-        alert('Renk sıralaması kaydedilirken bir hata oluştu.');
+        showToast('Renk sıralaması kaydedilirken bir hata oluştu.', 'error');
       });
       
       return renkler.sort((a, b) => a.sira - b.sira);
@@ -217,7 +219,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       );
     } catch (error) {
       console.error('Sipariş tamamlanırken hata:', error);
-      alert('Sipariş tamamlanırken bir hata oluştu.');
+      showToast('Sipariş tamamlanırken bir hata oluştu.', 'error');
     }
   };
 
@@ -233,7 +235,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       );
     } catch (error) {
       console.error('Sipariş iptal edilirken hata:', error);
-      alert('Sipariş iptal edilirken bir hata oluştu.');
+      showToast('Sipariş iptal edilirken bir hata oluştu.', 'error');
     }
   };
 
@@ -249,7 +251,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       );
     } catch (error) {
       console.error('Sipariş aktif edilirken hata:', error);
-      alert('Sipariş aktif edilirken bir hata oluştu.');
+      showToast('Sipariş aktif edilirken bir hata oluştu.', 'error');
     }
   };
 
@@ -259,7 +261,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       setSiparisler(prev => prev.filter(s => s.id !== id));
     } catch (error) {
       console.error('Sipariş silinirken hata:', error);
-      alert('Sipariş silinirken bir hata oluştu.');
+      showToast('Sipariş silinirken bir hata oluştu.', 'error');
     }
   };
 
@@ -288,7 +290,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       });
     } catch (error) {
       console.error('Kombinasyon eklenirken hata:', error);
-      alert('Kombinasyon eklenirken bir hata oluştu.');
+      showToast('Kombinasyon eklenirken bir hata oluştu.', 'error');
     }
   };
 
@@ -298,7 +300,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       setUrunKombinasyonlari(prev => prev.filter(k => k.id !== id));
     } catch (error) {
       console.error('Kombinasyon silinirken hata:', error);
-      alert('Kombinasyon silinirken bir hata oluştu.');
+      showToast('Kombinasyon silinirken bir hata oluştu.', 'error');
     }
   };
 

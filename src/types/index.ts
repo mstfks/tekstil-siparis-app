@@ -13,13 +13,14 @@ export interface Renk {
 
 export type KolTuru = 'kisa' | 'uzun' | 'yetim' | 'kisa-ribanali';
 export type YakaTuru = 'bisiklet' | 'v' | 'polo';
-export type NakisBaskiDurumu = 'on' | 'on-arka' | 'on-1kol' | 'on-kollar' | 'arka' | 'arka-1kol' | 'arka-kollar' | '1kol' | 'kollar' | 'on-arka-kollar' | 'dikilecek' | 'sorulacak';
+export type NakisBaskiDurumu = 'on' | 'on-arka' | 'on-1kol' | 'on-kollar' | 'arka' | 'arka-1kol' | 'arka-kollar' | '1kol' | 'kollar' | 'on-arka-kollar' | 'on-arka-1kol' | 'dikilecek' | 'sorulacak';
 export type SiparisTuru = 'suprem' | 'lakost' | 'yagmurdesen' | '3iplik' | 'polar';
 export type UcIplikModeli = 'dik-yaka-mont' | 'bisiklet-yaka-sivit' | 'kapusonlu-sivit' | 'kisa-fermuarli-sivit' | 'kapusonlu-mont' | 'polo-yaka-sivit';
 export type PolarModeli = 'dik-yaka-mont' | 'kisa-fermuarli-sivit' | 'kapusonlu-mont' | 'sal-70cm' | 'sal-90cm';
 export type SiparisDurumu = 'beklemede' | 'tamamlandi' | 'iptal';
 
 export interface BedenTablosu {
+  XXS: number;
   XS: number;
   S: number;
   M: number;

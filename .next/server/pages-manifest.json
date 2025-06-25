@@ -2,10 +2,13 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
+  "/siparis": "pages/siparis.js",
   "/": "pages/index.js",
-  "/gorseller": "pages/gorseller.js",
-  "/api/renkler": "pages/api/renkler.js",
+  "/gecmis": "pages/gecmis.js",
+  "/renkler": "pages/renkler.js",
   "/api/musteriler": "pages/api/musteriler.js",
+  "/api/renkler": "pages/api/renkler.js",
   "/api/kombinasyonlar": "pages/api/kombinasyonlar.js",
-  "/api/siparisler": "pages/api/siparisler.js"
+  "/api/siparisler": "pages/api/siparisler.js",
+  "/gorseller": "pages/gorseller.js"
 }

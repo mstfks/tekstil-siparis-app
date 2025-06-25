@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
+import { useUI } from '../context/UIContext';
 
 const RenklerSayfasi: React.FC = () => {
   const { renkler, renkEkle, renkSil, renkSirala } = useAppContext();
+  const { showConfirmModal } = useUI();
   const [yeniRenkIsmi, setYeniRenkIsmi] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
@@ -64,9 +66,14 @@ const RenklerSayfasi: React.FC = () => {
   };
 
   const handleSil = async (id: string, isim: string) => {
-    if (window.confirm(`"${isim}" rengini silmek istediğinizden emin misiniz?`)) {
-      await renkSil(id);
-    }
+    showConfirmModal({
+      title: 'Rengi Sil',
+      message: `"${isim}" rengini silmek istediğinizden emin misiniz?`,
+      confirmText: 'Sil',
+      cancelText: 'İptal',
+      type: 'danger',
+      onConfirm: () => renkSil(id)
+    });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

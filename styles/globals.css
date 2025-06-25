@@ -811,9 +811,15 @@ body {
 
 .beden-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 8px;
   margin-top: 20px;
+}
+
+@media (max-width: 1200px) {
+  .beden-grid {
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  }
 }
 
 .beden-input {
@@ -821,7 +827,7 @@ body {
   flex-direction: column;
   align-items: center;
   background: #f8f9fa;
-  padding: 12px;
+  padding: 8px 6px;
   border-radius: 8px;
   border: 2px solid #e9ecef;
   transition: all 0.3s ease;
@@ -834,21 +840,21 @@ body {
 }
 
 .beden-input label {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: #2c3e50;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   text-align: center;
 }
 
 .beden-input input {
-  width: 60px;
+  width: 50px;
   text-align: center;
-  padding: 8px;
+  padding: 6px 4px;
   border-radius: 6px;
   background: white;
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .gorsel-onizleme {
@@ -1602,7 +1608,8 @@ body {
   }
   
   .beden-grid {
-    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(65px, 1fr));
+    gap: 6px;
   }
   
   .kombinasyon-grid {
@@ -2637,4 +2644,263 @@ body {
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+/* Toast Bildirimleri */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 400px;
+}
+
+.toast-item {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border-left: 4px solid;
+  padding: 16px;
+  transform: translateX(400px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.toast-item.toast-visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.toast-item.toast-exiting {
+  transform: translateX(400px);
+  opacity: 0;
+}
+
+.toast-success {
+  border-left-color: #10b981;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+}
+
+.toast-error {
+  border-left-color: #ef4444;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+}
+
+.toast-warning {
+  border-left-color: #f59e0b;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+}
+
+.toast-info {
+  border-left-color: #3b82f6;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toast-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.toast-message {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #374151;
+  line-height: 1.4;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.toast-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #374151;
+}
+
+/* Onay Modal */
+.confirm-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  backdrop-filter: blur(2px);
+}
+
+.confirm-modal-overlay.confirm-modal-visible {
+  opacity: 1;
+}
+
+.confirm-modal-content {
+  background: white;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+.confirm-modal-visible .confirm-modal-content {
+  transform: scale(1);
+}
+
+.confirm-modal-header {
+  padding: 24px 24px 16px;
+  text-align: center;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.confirm-modal-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.confirm-modal-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.confirm-modal-body {
+  padding: 16px 24px;
+}
+
+.confirm-modal-message {
+  font-size: 1rem;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0;
+  text-align: center;
+  white-space: pre-line;
+}
+
+.confirm-modal-actions {
+  padding: 16px 24px 24px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.confirm-modal-cancel,
+.confirm-modal-confirm {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  min-width: 100px;
+}
+
+.confirm-modal-cancel {
+  background: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
+.confirm-modal-cancel:hover {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.confirm-modal-confirm {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.confirm-modal-confirm:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+
+.confirm-modal-confirm.danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.confirm-modal-confirm.danger:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+.confirm-modal-danger .confirm-modal-icon {
+  color: #ef4444;
+}
+
+.confirm-modal-warning .confirm-modal-icon {
+  color: #f59e0b;
+}
+
+.confirm-modal-info .confirm-modal-icon {
+  color: #3b82f6;
+}
+
+/* Toast ve Modal Responsive Tasarım */
+@media (max-width: 768px) {
+  .toast-container {
+    left: 20px;
+    right: 20px;
+    max-width: none;
+  }
+  
+  .toast-item {
+    transform: translateY(-100px);
+  }
+  
+  .toast-item.toast-visible {
+    transform: translateY(0);
+  }
+  
+  .toast-item.toast-exiting {
+    transform: translateY(-100px);
+  }
+  
+  .confirm-modal-content {
+    margin: 20px;
+    width: calc(100% - 40px);
+  }
+  
+  .confirm-modal-actions {
+    flex-direction: column;
+  }
+  
+  .confirm-modal-cancel,
+  .confirm-modal-confirm {
+    width: 100%;
+  }
 }

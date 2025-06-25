@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAppContext } from '../context/AppContext';
+import { useUI } from '../context/UIContext';
 import { KolTuru, YakaTuru, NakisBaskiDurumu, BedenTablosu, SiparisTuru, UcIplikModeli, PolarModeli } from '../types';
 
 const SiparisSayfasi: React.FC = () => {
   const router = useRouter();
+  const { showToast } = useUI();
   const { 
     musteriler, 
     renkler, 
@@ -27,6 +29,7 @@ const SiparisSayfasi: React.FC = () => {
   });
 
   const [bedenTablosu, setBedenTablosu] = useState<BedenTablosu>({
+    XXS: 0,
     XS: 0,
     S: 0,
     M: 0,
@@ -59,6 +62,7 @@ const SiparisSayfasi: React.FC = () => {
     { value: '1kol', label: 'Tek Kol' },
     { value: 'kollar', label: 'Kollar' },
     { value: 'on-arka-kollar', label: 'Ön, Arka ve Kollar' },
+    { value: 'on-arka-1kol', label: 'Ön, Arka ve Tek Kol' },
     { value: 'dikilecek', label: 'Dikilecek' },
     { value: 'sorulacak', label: 'Sorulacak' },
   ];
@@ -143,9 +147,9 @@ const SiparisSayfasi: React.FC = () => {
       }));
       setYeniBeden('');
     } else if (trimmedBeden && (bedenTablosu.hasOwnProperty(trimmedBeden) || ekstraBedenler.hasOwnProperty(trimmedBeden))) {
-      alert('Bu beden zaten mevcut!');
+      showToast('Bu beden zaten mevcut!', 'warning');
     } else if (!trimmedBeden) {
-      alert('Lütfen geçerli bir beden adı giriniz!');
+      showToast('Lütfen geçerli bir beden adı giriniz!', 'warning');
     }
   };
 
@@ -161,7 +165,7 @@ const SiparisSayfasi: React.FC = () => {
     e.preventDefault();
 
     if (!formData.musteriId || !formData.renkId) {
-      alert('Lütfen müşteri ve renk seçiniz.');
+      showToast('Lütfen müşteri ve renk seçiniz.', 'warning');
       return;
     }
 
@@ -169,7 +173,7 @@ const SiparisSayfasi: React.FC = () => {
                        Object.values(ekstraBedenler).reduce((a, b) => a + b, 0);
 
     if (toplamBeden === 0) {
-      alert('Lütfen en az bir beden için adet giriniz.');
+      showToast('Lütfen en az bir beden için adet giriniz.', 'warning');
       return;
     }
 
@@ -177,7 +181,7 @@ const SiparisSayfasi: React.FC = () => {
     const seciliRenk = renkler.find(r => r.id === formData.renkId);
 
     if (!seciliMusteri || !seciliRenk) {
-      alert('Müşteri veya renk bulunamadı.');
+      showToast('Müşteri veya renk bulunamadı.', 'error');
       return;
     }
 
@@ -206,7 +210,7 @@ const SiparisSayfasi: React.FC = () => {
 
     await siparisEkle(siparisData);
 
-    alert('Sipariş başarıyla oluşturuldu!');
+    showToast('Sipariş başarıyla oluşturuldu!', 'success');
     router.push('/');
   };
 

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
+import { useUI } from '../context/UIContext';
 import { Siparis, PolarModeli } from '../types';
 
 const AnaSayfa: React.FC = () => {
   const { siparisler, siparisTamamla, siparisIptal, siparisSil, renkler } = useAppContext();
+  const { showConfirmModal } = useUI();
   const [seciliSiparis, setSeciliSiparis] = useState<Siparis | null>(null);
   const [siralama, setSiralama] = useState<'yeni-eski' | 'eski-yeni'>('yeni-eski');
   const [aramaMetni, setAramaMetni] = useState<string>('');
@@ -66,6 +68,8 @@ const AnaSayfa: React.FC = () => {
       'arka-kollar': 'Arka ve Kollar',
       '1kol': '1 Kol',
       'kollar': 'Kollar',
+      'on-arka-kollar': 'Ön, Arka ve Kollar',
+      'on-arka-1kol': 'Ön, Arka ve Tek Kol',
       'dikilecek': 'Dikilecek',
       'sorulacak': 'Sorulacak'
     };
@@ -135,39 +139,54 @@ const AnaSayfa: React.FC = () => {
 
   const handleTamamla = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm('Bu siparişi tamamlandı olarak işaretlemek istediğinizden emin misiniz?')) {
-      await siparisTamamla(id);
-    }
+    siparisTamamla(id);
   };
 
   const handleIptal = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm('Bu siparişi iptal etmek istediğinizden emin misiniz?')) {
-      await siparisIptal(id);
-    }
+    showConfirmModal({
+      title: 'Siparişi İptal Et',
+      message: 'Bu siparişi iptal etmek istediğinizden emin misiniz?',
+      confirmText: 'İptal Et',
+      cancelText: 'Vazgeç',
+      type: 'warning',
+      onConfirm: () => siparisIptal(id)
+    });
   };
 
   const handleModalTamamla = async (id: string) => {
-    if (window.confirm('Bu siparişi tamamlandı olarak işaretlemek istediğinizden emin misiniz?')) {
-      await siparisTamamla(id);
-      modalKapat();
-    }
+    siparisTamamla(id);
+    modalKapat();
   };
 
   const handleModalIptal = async (id: string) => {
-    if (window.confirm('Bu siparişi iptal etmek istediğinizden emin misiniz?')) {
-      await siparisIptal(id);
-      modalKapat();
-    }
+    showConfirmModal({
+      title: 'Siparişi İptal Et',
+      message: 'Bu siparişi iptal etmek istediğinizden emin misiniz?',
+      confirmText: 'İptal Et',
+      cancelText: 'Vazgeç',
+      type: 'warning',
+      onConfirm: () => {
+        siparisIptal(id);
+        modalKapat();
+      }
+    });
   };
 
   const handleModalSil = async (siparis: Siparis) => {
     const confirmMessage = `Bu siparişi tamamen silmek istediğinizden emin misiniz?\n\nSipariş: #${siparis.siparisNo} - ${siparis.musteriIsmi}\nDurum: Beklemede\n\nBu işlem geri alınamaz!`;
     
-    if (window.confirm(confirmMessage)) {
-      await siparisSil(siparis.id);
-      modalKapat();
-    }
+    showConfirmModal({
+      title: 'Siparişi Sil',
+      message: confirmMessage,
+      confirmText: 'Sil',
+      cancelText: 'İptal',
+      type: 'danger',
+      onConfirm: () => {
+        siparisSil(siparis.id);
+        modalKapat();
+      }
+    });
   };
 
   const handleYazdir = (siparis: Siparis) => {
