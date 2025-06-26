@@ -201,133 +201,150 @@ const GecmisSiparisler: React.FC = () => {
             border: 1px solid #ddd;
             border-radius: 5px;
             padding: 8px;
-            text-align: center;
-            min-height: 120px;
+            background: #f8f9fa;
             display: flex;
             align-items: center;
             justify-content: center;
+            min-height: 180px;
           }
           
           .urun-gorseli img {
             max-width: 100%;
-            max-height: 100px;
+            max-height: 160px;
             object-fit: contain;
+            border-radius: 3px;
           }
           
-          .gorsel-placeholder {
+          .urun-gorseli .gorsel-yok {
+            text-align: center;
             color: #999;
             font-size: 13px;
-            text-align: center;
+            font-style: italic;
           }
           
           .urun-ozellikleri {
             grid-area: urun-ozellikleri;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            align-content: start;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px;
+            background: #f8f9fa;
           }
           
-          .ozellik {
-            background: #f8f9fa;
-            padding: 6px;
-            border-radius: 3px;
+          .urun-ozellikleri h3 {
+            font-size: 15px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #ddd;
+          }
+          
+          .ozellik-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            border-bottom: 1px solid #eee;
+          }
+          
+          .ozellik-item:last-child {
+            border-bottom: none;
+          }
+          
+          .ozellik-label {
+            font-weight: 600;
+            color: #555;
             font-size: 13px;
           }
           
-          .ozellik .label {
-            font-weight: bold;
-            color: #495057;
-            margin-bottom: 2px;
-          }
-          
-          .ozellik .value {
+          .ozellik-value {
             color: #333;
+            font-size: 13px;
+            text-align: right;
+            font-weight: 500;
           }
           
           .beden-tablosu-container {
             grid-area: beden-tablosu;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px;
+            background: #f8f9fa;
           }
           
           .beden-tablosu-container h3 {
             font-size: 15px;
-            margin-bottom: 6px;
+            font-weight: bold;
             color: #333;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
             border-bottom: 1px solid #ddd;
-            padding-bottom: 3px;
           }
           
-          .beden-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+          .beden-tablosu {
+            display: flex;
+            flex-wrap: nowrap;
             gap: 4px;
+            margin-top: 8px;
+            overflow-x: hidden;
           }
           
           .beden-item {
-            background: #e9ecef;
-            padding: 4px 6px;
+            border: 1px solid #ddd;
             border-radius: 3px;
+            padding: 6px 4px;
             text-align: center;
-            font-size: 13px;
+            background: white;
+            flex: 1;
+            min-width: 35px;
+            max-width: 60px;
           }
           
           .beden-item .beden {
-            font-weight: bold;
-            color: #495057;
-            font-size: 16px;
+            font-weight: 650;
+            color: #333;
+            font-size: clamp(16px, 3vw, 20px);
+            display: block;
+            margin-bottom: 3px;
+            padding-bottom: 2px;
+            border-bottom: 1px solid #ddd;
           }
           
           .beden-item .adet {
             color: #333;
-            font-size: 16px;
-            font-weight: bold;
+            font-size: clamp(16px, 3vw, 20px);
+            font-weight: 650;
+            margin-top: 2px;
           }
           
           .notlar-container {
             grid-area: notlar;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px;
+            background: #f8f9fa;
           }
           
           .notlar-container h3 {
             font-size: 15px;
-            margin-bottom: 6px;
-            color: #333;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 3px;
-          }
-          
-          .notlar-metni {
-            background: #f8f9fa;
-            padding: 8px;
-            border-radius: 3px;
-            font-size: 13px;
-            line-height: 1.4;
-            color: #333;
-            word-wrap: break-word;
-          }
-          
-          .toplam-urun {
-            margin-top: 8px;
-            padding: 6px;
-            background: #007bff;
-            color: white;
-            border-radius: 3px;
-            text-align: center;
             font-weight: bold;
-            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #ddd;
           }
           
-          @media print {
-            .yazdir-container {
-              padding: 8px;
-            }
-            
-            .header h1 {
-              font-size: 18px;
-            }
-            
-            .header-right .siparis-no {
-              font-size: 15px;
-            }
+          .notlar {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 8px;
+            font-size: 13px;
+            color: #333;
+            line-height: 1.4;
+            min-height: 40px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
           }
         </style>
       </head>
@@ -336,9 +353,15 @@ const GecmisSiparisler: React.FC = () => {
           <div class="header">
             <div class="header-left">
               <h1>${siparis.musteriIsmi}</h1>
-              <div class="urun-ozet">
-                ${siparis.toplamUrun} adet ${siparis.siparisTuru === '3iplik' ? `${siparisTuruMetni(siparis.siparisTuru)} ${siparis.renkIsmi} ${ucIplikModeliMetni(siparis.ucIplikModeli)}` : `${yakaTuruMetni(siparis.yakaTuru)} ${kolTuruMetni(siparis.kolTuru)} ${siparis.renkIsmi} ${siparisTuruMetni(siparis.siparisTuru)}`}
-              </div>
+                              <p class="urun-ozet">${
+                siparis.siparisTuru === '3iplik' 
+                  ? `${siparisTuruMetni(siparis.siparisTuru)} ${siparis.renkIsmi} ${ucIplikModeliMetni(siparis.ucIplikModeli)}`
+                  : siparis.siparisTuru === 'polar' 
+                    ? siparis.polarModeli 
+                      ? `${siparisTuruMetni(siparis.siparisTuru)} ${siparis.renkIsmi} ${polarModeliMetni(siparis.polarModeli)}`
+                      : `${siparisTuruMetni(siparis.siparisTuru)} ${siparis.renkIsmi} (Model Belirtilmemiş)`
+                    : `${yakaTuruMetni(siparis.yakaTuru)} ${kolTuruMetni(siparis.kolTuru)} ${siparis.renkIsmi} ${siparisTuruMetni(siparis.siparisTuru)}`
+              }</p>
             </div>
             <div class="header-right">
               <div class="tarih">${siparis.tarih.toLocaleDateString('tr-TR')}</div>
@@ -348,56 +371,57 @@ const GecmisSiparisler: React.FC = () => {
           
           <div class="content">
             <div class="urun-gorseli">
-              ${siparis.kombinasyonGorsel 
-                ? `<img src="${siparis.kombinasyonGorsel}" alt="Ürün görseli" />` 
-                : '<div class="gorsel-placeholder">Görsel yok</div>'
-              }
+                ${siparis.kombinasyonGorsel ? 
+                  `<img src="${siparis.kombinasyonGorsel}" alt="Ürün Görseli" />` : 
+                '<div class="gorsel-yok">Görsel<br/>Eklenmemiş</div>'
+                }
             </div>
             
             <div class="urun-ozellikleri">
-              <div class="ozellik">
-                <div class="label">Sipariş Türü:</div>
-                <div class="value">${siparisTuruMetni(siparis.siparisTuru)}</div>
+              <h3>Ürün Özellikleri</h3>
+              <div class="ozellik-item">
+                <span class="ozellik-label">Sipariş Türü:</span>
+                <span class="ozellik-value">${siparisTuruMetni(siparis.siparisTuru)}</span>
               </div>
-              <div class="ozellik">
-                <div class="label">Renk:</div>
-                <div class="value">${siparis.renkIsmi}</div>
+              <div class="ozellik-item">
+                <span class="ozellik-label">Renk:</span>
+                <span class="ozellik-value">${siparis.renkIsmi}</span>
               </div>
               ${siparis.siparisTuru === '3iplik' ? `
-                <div class="ozellik">
-                  <div class="label">Model:</div>
-                  <div class="value">${ucIplikModeliMetni(siparis.ucIplikModeli)}</div>
+                <div class="ozellik-item">
+                  <span class="ozellik-label">Model:</span>
+                  <span class="ozellik-value">${ucIplikModeliMetni(siparis.ucIplikModeli)}</span>
                 </div>
               ` : siparis.siparisTuru === 'polar' ? `
-                <div class="ozellik">
-                  <div class="label">Model:</div>
-                  <div class="value">${siparis.polarModeli ? polarModeliMetni(siparis.polarModeli) : 'Belirtilmemiş'}</div>
+                <div class="ozellik-item">
+                  <span class="ozellik-label">Model:</span>
+                  <span class="ozellik-value">${siparis.polarModeli ? polarModeliMetni(siparis.polarModeli) : 'Belirtilmemiş'}</span>
                 </div>
               ` : `
-                <div class="ozellik">
-                  <div class="label">Kol Türü:</div>
-                  <div class="value">${kolTuruMetni(siparis.kolTuru)}</div>
+                <div class="ozellik-item">
+                  <span class="ozellik-label">Kol Türü:</span>
+                  <span class="ozellik-value">${kolTuruMetni(siparis.kolTuru)}</span>
                 </div>
-                <div class="ozellik">
-                  <div class="label">Yaka Türü:</div>
-                  <div class="value">${yakaTuruMetni(siparis.yakaTuru)}</div>
+                <div class="ozellik-item">
+                  <span class="ozellik-label">Yaka Türü:</span>
+                  <span class="ozellik-value">${yakaTuruMetni(siparis.yakaTuru)}</span>
                 </div>
               `}
-              <div class="ozellik">
-                <div class="label">Nakış/Baskı:</div>
-                <div class="value">${nakisBaskiMetni(siparis.nakisBaskiDurumu)}</div>
+              <div class="ozellik-item">
+                <span class="ozellik-label">Nakış/Baskı:</span>
+                <span class="ozellik-value">${nakisBaskiMetni(siparis.nakisBaskiDurumu)}</span>
               </div>
-              <div class="ozellik">
-                <div class="label">Durum:</div>
-                <div class="value">${durumMetni(siparis.durum)}</div>
+              <div class="ozellik-item">
+                <span class="ozellik-label">Toplam Ürün:</span>
+                <span class="ozellik-value"><strong>${siparis.toplamUrun} adet</strong></span>
               </div>
             </div>
             
             <div class="beden-tablosu-container">
               <h3>Beden Dağılımı</h3>
-              <div class="beden-grid">
+              <div class="beden-tablosu">
                 ${Object.entries(siparis.bedenTablosu)
-                  .filter(([beden, adet]) => adet > 0)
+                  .filter(([_, adet]) => adet > 0)
                   .map(([beden, adet]) => `
                     <div class="beden-item">
                       <div class="beden">${beden}</div>
@@ -405,15 +429,12 @@ const GecmisSiparisler: React.FC = () => {
                     </div>
                   `).join('')}
               </div>
-              <div class="toplam-urun">
-                Toplam: ${siparis.toplamUrun} Adet
-              </div>
             </div>
             
             ${siparis.not ? `
               <div class="notlar-container">
-                <h3>Notlar</h3>
-                <div class="notlar-metni">${siparis.not}</div>
+                  <h3>Notlar</h3>
+                <div class="notlar">${siparis.not}</div>
               </div>
             ` : ''}
           </div>
@@ -422,17 +443,32 @@ const GecmisSiparisler: React.FC = () => {
       </html>
     `;
 
-    // Yeni pencere aç ve yazdır
-    const yazdirmaPenceresi = window.open('', '_blank');
-    if (yazdirmaPenceresi) {
-      yazdirmaPenceresi.document.write(yazdirmaIcerigi);
-      yazdirmaPenceresi.document.close();
-      
-      // Sayfa yüklenince yazdırma dialogunu aç
-      yazdirmaPenceresi.onload = () => {
-        yazdirmaPenceresi.focus();
-        yazdirmaPenceresi.print();
-      };
+    // Gizli iframe oluştur ve yazdır
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = 'none';
+    iframe.style.visibility = 'hidden';
+    document.body.appendChild(iframe);
+
+    // İçeriği iframe'e yaz
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (iframeDoc) {
+      iframeDoc.open();
+      iframeDoc.write(yazdirmaIcerigi);
+      iframeDoc.close();
+
+      // Yazdırma işlemini başlat
+      setTimeout(() => {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+
+      // İframe'i temizle
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+      }, 1000);
+      }, 500);
     }
   };
 

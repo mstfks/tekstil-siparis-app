@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 interface ToastMessage {
   id: string;
@@ -27,6 +27,11 @@ interface UIContextType {
   showConfirmModal: (data: ConfirmModalData) => void;
   hideConfirmModal: () => void;
   confirmModalData: ConfirmModalData | null;
+  
+  // Sidebar yönetimi
+  isCollapsed: boolean;
+  setIsCollapsed: (collapsed: boolean) => void;
+  toggleSidebar: () => void;
 }
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
@@ -46,6 +51,20 @@ interface UIProviderProps {
 export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [confirmModalData, setConfirmModalData] = useState<ConfirmModalData | null>(null);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Sayfa yüklendiğinde localStorage'dan sidebar durumunu oku
+  useEffect(() => {
+    const savedCollapsed = localStorage.getItem('sidebarCollapsed');
+    if (savedCollapsed !== null) {
+      setIsCollapsed(JSON.parse(savedCollapsed));
+    }
+  }, []);
+
+  // Sidebar durumu değiştiğinde localStorage'a kaydet
+  useEffect(() => {
+    localStorage.setItem('sidebarCollapsed', JSON.stringify(isCollapsed));
+  }, [isCollapsed]);
 
   const showToast = (message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info', duration: number = 5000) => {
     const id = Date.now().toString();
@@ -78,6 +97,10 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
     setConfirmModalData(null);
   };
 
+  const toggleSidebar = () => {
+    setIsCollapsed(prev => !prev);
+  };
+
   const value: UIContextType = {
     showToast,
     hideToast,
@@ -85,6 +108,9 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
     showConfirmModal,
     hideConfirmModal,
     confirmModalData,
+    isCollapsed,
+    setIsCollapsed,
+    toggleSidebar,
   };
 
   return (

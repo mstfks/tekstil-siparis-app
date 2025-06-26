@@ -178,11 +178,7 @@ const AnalyzSayfasi: React.FC = () => {
     return toplam > 0 ? `${Math.round((deger / toplam) * 100)}%` : '0%';
   };
 
-  // En popüler öğeleri bul
-  const enPopulerMusteriler = Object.entries(analizVerisi.musteriDagilimi)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 5);
-
+  // En popüler renkler
   const enPopulerRenkler = Object.entries(analizVerisi.renkDagilimi)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 5);
@@ -282,6 +278,15 @@ const AnalyzSayfasi: React.FC = () => {
                 <span className={styles.kucukMetin}>ürün</span>
               </div>
             </div>
+
+            <div className={styles.istatistikKarti} style={{background: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)'}}>
+              <div className={styles.kartIkon}>🏷️</div>
+              <div className={styles.kartIcerik}>
+                <h3>Polar</h3>
+                <p className={styles.buyukSayi}>{analizVerisi.siparisTuruDagilimi.polar || 0}</p>
+                <span className={styles.kucukMetin}>ürün</span>
+              </div>
+            </div>
           </div>
 
           {/* Ürün Türü Dağılımı */}
@@ -317,12 +322,11 @@ const AnalyzSayfasi: React.FC = () => {
               <div className={styles.musteriTabloBasi}>
                 <span>Müşteri Adı</span>
                 <span>Toplam Ürün</span>
-                <span>Sipariş Sayısı</span>
                 <span>Süprem</span>
                 <span>Lakost</span>
                 <span>Yağmur Desen</span>
                 <span>3 İplik</span>
-                <span>Son Sipariş</span>
+                <span>Polar</span>
               </div>
               
               {sayfadakiMusteriler.map((musteri, index) => (
@@ -332,12 +336,11 @@ const AnalyzSayfasi: React.FC = () => {
                     {musteri.isim}
                   </span>
                   <span className={styles.musteriAdet}>{musteri.toplamUrun}</span>
-                  <span className={styles.musteriSiparis}>{musteri.toplamSiparis}</span>
                   <span className={styles.musteriTur}>{musteri.siparisTuruDagilimi.suprem || 0}</span>
                   <span className={styles.musteriTur}>{musteri.siparisTuruDagilimi.lakost || 0}</span>
                   <span className={styles.musteriTur}>{musteri.siparisTuruDagilimi.yagmurdesen || 0}</span>
                   <span className={styles.musteriTur}>{musteri.siparisTuruDagilimi['3iplik'] || 0}</span>
-                  <span className={styles.musteriTarih}>{musteri.sonSiparisTarihi}</span>
+                  <span className={styles.musteriTur}>{musteri.siparisTuruDagilimi.polar || 0}</span>
                 </div>
               ))}
             </div>
@@ -390,32 +393,17 @@ const AnalyzSayfasi: React.FC = () => {
             )}
           </div>
 
-          {/* En Popüler Müşteriler ve Renkler */}
-          <div className={styles.ciftliBolum}>
-            <div className={styles.analyzBolumu}>
-              <h2>🏆 En Popüler Müşteriler (Top 5)</h2>
-              <div className={styles.populerListe}>
-                {enPopulerMusteriler.map(([musteri, adet], index) => (
-                  <div key={musteri} className={styles.populerSatir}>
-                    <span className={styles.siraNo}>{index + 1}</span>
-                    <span className={styles.populerIsim}>{musteri}</span>
-                    <span className={styles.populerAdet}>{adet} ürün</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className={styles.analyzBolumu}>
-              <h2>🎨 En Popüler Renkler (Top 5)</h2>
-              <div className={styles.populerListe}>
-                {enPopulerRenkler.map(([renk, adet], index) => (
-                  <div key={renk} className={styles.populerSatir}>
-                    <span className={styles.siraNo}>{index + 1}</span>
-                    <span className={styles.populerIsim}>{renk}</span>
-                    <span className={styles.populerAdet}>{adet} ürün</span>
-                  </div>
-                ))}
-              </div>
+          {/* En Popüler Renkler */}
+          <div className={styles.analyzBolumu}>
+            <h2>🎨 En Popüler Renkler (Top 5)</h2>
+            <div className={styles.populerListe}>
+              {enPopulerRenkler.map(([renk, adet], index) => (
+                <div key={renk} className={styles.populerSatir}>
+                  <span className={styles.siraNo}>{index + 1}</span>
+                  <span className={styles.populerIsim}>{renk}</span>
+                  <span className={styles.populerAdet}>{adet} ürün</span>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -430,6 +418,8 @@ const AnalyzSayfasi: React.FC = () => {
                 <span>Süprem</span>
                 <span>Lakost</span>
                 <span>Yağmur Desen</span>
+                <span>3 İplik</span>
+                <span>Polar</span>
               </div>
               {analizVerisi.aylikTrend.map((veri, index) => (
                 <div key={index} className={styles.trendSatir}>
@@ -439,6 +429,8 @@ const AnalyzSayfasi: React.FC = () => {
                   <span className={styles.trendTur}>{veri.siparisTuruAdetleri.suprem || 0}</span>
                   <span className={styles.trendTur}>{veri.siparisTuruAdetleri.lakost || 0}</span>
                   <span className={styles.trendTur}>{veri.siparisTuruAdetleri.yagmurdesen || 0}</span>
+                  <span className={styles.trendTur}>{veri.siparisTuruAdetleri['3iplik'] || 0}</span>
+                  <span className={styles.trendTur}>{veri.siparisTuruAdetleri.polar || 0}</span>
                 </div>
               ))}
             </div>

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
+import { useUI } from '../context/UIContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -11,7 +12,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
   const { user, logout } = useAuth();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const { isCollapsed, setIsCollapsed, toggleSidebar } = useUI();
   const [isMobile, setIsMobile] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -19,7 +20,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     const checkIsMobile = () => {
       const mobile = window.innerWidth <= 768;
       setIsMobile(mobile);
-      if (mobile) {
+      if (mobile && !isCollapsed) {
         setIsCollapsed(true); // Mobilde başlangıçta daraltılmış
       }
     };
@@ -28,7 +29,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     window.addEventListener('resize', checkIsMobile);
     
     return () => window.removeEventListener('resize', checkIsMobile);
-  }, []);
+  }, [isCollapsed, setIsCollapsed]);
 
   const menuItems = [
     { 
@@ -152,7 +153,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           )}
           <button 
             className="collapse-btn" 
-            onClick={() => setIsCollapsed(!isCollapsed)}
+            onClick={toggleSidebar}
             title={isCollapsed ? 'Menüyü genişlet' : 'Menüyü daralt'}
           >
             <svg viewBox="0 0 24 24" fill="currentColor">
@@ -169,7 +170,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {isMobile && (
           <button 
             className="mobile-menu-toggle"
-            onClick={() => setIsCollapsed(!isCollapsed)}
+            onClick={toggleSidebar}
             title="Menü"
           >
             <svg viewBox="0 0 24 24" fill="currentColor">
