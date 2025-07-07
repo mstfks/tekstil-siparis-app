@@ -24,7 +24,7 @@ const SiparisSayfasi: React.FC = () => {
     ucIplikModeli: 'dik-yaka-mont' as UcIplikModeli,
     polarModeli: 'dik-yaka-mont' as PolarModeli,
     nakisBaskiDurumu: 'on' as NakisBaskiDurumu,
-    siparisTarihi: new Date().toISOString().split('T')[0], // Bugünün tarihi YYYY-MM-DD formatında
+    siparisTarihi: new Date().toISOString().split('T')[0],
     not: '',
   });
 
@@ -78,10 +78,10 @@ const SiparisSayfasi: React.FC = () => {
 
   const polarModelleri = [
     { value: 'dik-yaka-mont', label: 'Dik Yaka Mont' },
-    { value: 'kisa-fermuarli-sivit', label: 'Kısa Fermuarlı Sivit' },
-    { value: 'kapusonlu-mont', label: 'Kapüşonlu Mont' },
-    { value: 'sal-70cm', label: 'Şal 70 cm' },
-    { value: 'sal-90cm', label: 'Şal 90 cm' },
+          { value: 'kisa-fermuarli-sivit', label: 'Kısa Fermuarlı Sivit' },
+          { value: 'kapusonlu-mont', label: 'Kapüşonlu Mont' },
+          { value: 'sal-70cm', label: 'Şal 70 cm' },
+          { value: 'sal-90cm', label: 'Şal 90 cm' },
   ];
 
   // Kombinasyon görselini bul
@@ -101,9 +101,8 @@ const SiparisSayfasi: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     
-    // Sipariş türüne göre default yaka tipini ayarla
     if (name === 'siparisTuru') {
-      let defaultYaka = 'bisiklet'; // Default olarak bisiklet yaka
+      let defaultYaka = 'bisiklet';
       
       if (value === 'lakost') {
         defaultYaka = 'polo';
@@ -198,7 +197,6 @@ const SiparisSayfasi: React.FC = () => {
       not: formData.not,
     };
 
-    // 3 İplik için model ekle, diğerleri için kol ve yaka bilgisi ekle
     if (formData.siparisTuru === '3iplik') {
       siparisData.ucIplikModeli = formData.ucIplikModeli;
     } else if (formData.siparisTuru === 'polar') {
@@ -209,373 +207,529 @@ const SiparisSayfasi: React.FC = () => {
     }
 
     await siparisEkle(siparisData);
-
-    showToast('Sipariş başarıyla oluşturuldu!', 'success');
     router.push('/');
   };
 
   const kombinasyon = getKombinasyonGorsel();
+  const toplamUrun = Object.values(bedenTablosu).reduce((a, b) => a + b, 0) + 
+                     Object.values(ekstraBedenler).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="siparis-sayfasi">
-      <div className="sayfa-header">
-        <h1>Yeni Sipariş Oluştur</h1>
-        <p>Tekstil ürün siparişi</p>
+    <div className="modern-siparis-sayfasi">
+      {/* Modern Header */}
+      <div className="modern-header">
+        <div className="header-content">
+          <div className="header-left">
+            <div className="title-section">
+              <h1 className="page-title">
+                <span className="title-icon">➕</span>
+                Yeni Sipariş Oluştur
+              </h1>
+            </div>
+            <p className="subtitle">Tekstil ürün siparişi detaylarını girin</p>
+          </div>
+          
+          <div className="header-right">
+          </div>
+        </div>
       </div>
 
-      <div className="siparis-container">
-        <form onSubmit={handleSubmit} className="siparis-form">
-          <div className="form-row">
-            <div className="form-grup">
-              <label htmlFor="siparisTuru">Sipariş Türü</label>
-              <select
-                id="siparisTuru"
-                name="siparisTuru"
-                value={formData.siparisTuru}
-                onChange={handleInputChange}
-                required
-                className="modern-select"
-              >
+      {/* Main Content */}
+      <div className="modern-siparis-container">
+        <div className="siparis-content">
+          {/* Form Section */}
+          <div className="form-section">
+            <form onSubmit={handleSubmit} className="modern-siparis-form">
+              {/* Ürün Türü Seçimi */}
+              <div className="form-section-header">
+                <h3>
+                  <span className="section-icon">👕</span>
+                  Ürün Türü
+                </h3>
+              </div>
+              
+              <div className="product-type-grid">
                 {siparisTurleri.map(tur => (
-                  <option key={tur.value} value={tur.value}>
-                    {tur.label}
-                  </option>
+                  <label key={tur.value} className={`product-type-card ${formData.siparisTuru === tur.value ? 'selected' : ''}`}>
+                    <input
+                      type="radio"
+                      name="siparisTuru"
+                      value={tur.value}
+                      checked={formData.siparisTuru === tur.value}
+                      onChange={handleInputChange}
+                      className="hidden-radio"
+                    />
+                                         <div className="card-content">
+                       <span className="card-label">{tur.label}</span>
+                     </div>
+                  </label>
                 ))}
-              </select>
-            </div>
-
-            <div className="form-grup">
-              <label htmlFor="musteriId">Müşteri</label>
-              <select
-                id="musteriId"
-                name="musteriId"
-                value={formData.musteriId}
-                onChange={handleInputChange}
-                required
-                className="modern-select"
-              >
-                <option value="">Müşteri seçiniz</option>
-                {musteriler.map(musteri => (
-                  <option key={musteri.id} value={musteri.id}>
-                    {musteri.isim}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-grup">
-              <label htmlFor="renkId">Renk</label>
-              <select
-                id="renkId"
-                name="renkId"
-                value={formData.renkId}
-                onChange={handleInputChange}
-                required
-                className="modern-select"
-              >
-                <option value="">Renk seçiniz</option>
-                {renkler.map(renk => (
-                  <option key={renk.id} value={renk.id}>
-                    {renk.isim}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-grup">
-              <label htmlFor="siparisTarihi">Sipariş Tarihi</label>
-              <input
-                type="date"
-                id="siparisTarihi"
-                name="siparisTarihi"
-                value={formData.siparisTarihi}
-                onChange={handleInputChange}
-                required
-                className="modern-input date-input"
-              />
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-grup">
-              <label htmlFor="nakisBaskiDurumu">Nakış/Baskı Durumu</label>
-              <select
-                id="nakisBaskiDurumu"
-                name="nakisBaskiDurumu"
-                value={formData.nakisBaskiDurumu}
-                onChange={handleInputChange}
-                className="modern-select"
-              >
-                {nakisBaskiSecenekleri.map(secenek => (
-                  <option key={secenek.value} value={secenek.value}>
-                    {secenek.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-grup">
-              {/* Bu alan boş bırakıldı, gerektiğinde başka alan eklenebilir */}
-            </div>
-          </div>
-
-          {formData.siparisTuru === '3iplik' ? (
-            <div className="form-row">
-              <div className="form-grup">
-                <label htmlFor="ucIplikModeli">Model</label>
-                <select
-                  id="ucIplikModeli"
-                  name="ucIplikModeli"
-                  value={formData.ucIplikModeli}
-                  onChange={handleInputChange}
-                  className="modern-select"
-                >
-                  {ucIplikModelleri.map(model => (
-                    <option key={model.value} value={model.value}>
-                      {model.label}
-                    </option>
-                  ))}
-                </select>
               </div>
 
-              <div className="form-grup">
-                {/* Bu alan boş bırakıldı */}
+              {/* Müşteri ve Renk Seçimi */}
+              <div className="form-section-header">
+                <h3>
+                  <span className="section-icon">🎯</span>
+                  Müşteri ve Renk
+                </h3>
               </div>
-            </div>
-          ) : formData.siparisTuru === 'polar' ? (
-            <div className="form-row">
-              <div className="form-grup">
-                <label htmlFor="polarModeli">Model</label>
-                <select
-                  id="polarModeli"
-                  name="polarModeli"
-                  value={formData.polarModeli}
-                  onChange={handleInputChange}
-                  className="modern-select"
-                >
-                  {polarModelleri.map(model => (
-                    <option key={model.value} value={model.value}>
-                      {model.label}
-                    </option>
-                  ))}
-                </select>
+              
+              <div className="form-row">
+                <div className="modern-form-group">
+                  <label htmlFor="musteriId">
+                    <span className="label-icon">👤</span>
+                    Müşteri
+                  </label>
+                  <select
+                    id="musteriId"
+                    name="musteriId"
+                    value={formData.musteriId}
+                    onChange={handleInputChange}
+                    required
+                    className="modern-select"
+                  >
+                    <option value="">Müşteri seçiniz</option>
+                    {musteriler.map(musteri => (
+                      <option key={musteri.id} value={musteri.id}>
+                        {musteri.isim}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="modern-form-group">
+                  <label htmlFor="renkId">
+                    <span className="label-icon">🎨</span>
+                    Renk
+                  </label>
+                  <select
+                    id="renkId"
+                    name="renkId"
+                    value={formData.renkId}
+                    onChange={handleInputChange}
+                    required
+                    className="modern-select"
+                  >
+                    <option value="">Renk seçiniz</option>
+                    {renkler.map(renk => (
+                      <option key={renk.id} value={renk.id}>
+                        {renk.isim}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              <div className="form-grup">
-                {/* Bu alan boş bırakıldı */}
-              </div>
-            </div>
-          ) : (
-            <div className="form-row">
-              <div className="form-grup">
-                <label htmlFor="kolTuru">Kol Bilgisi</label>
-                <select
-                  id="kolTuru"
-                  name="kolTuru"
-                  value={formData.kolTuru}
-                  onChange={handleInputChange}
-                  className="modern-select"
-                >
-                  <option value="kisa">Kısa Kol</option>
-                  <option value="uzun">Uzun Kol</option>
-                  <option value="yetim">Yetim Kol</option>
-                  <option value="kisa-ribanali">Kısa Ribanalı</option>
-                </select>
-              </div>
-
-              <div className="form-grup">
-                <label htmlFor="yakaTuru">Yaka Bilgisi</label>
-                <select
-                  id="yakaTuru"
-                  name="yakaTuru"
-                  value={formData.yakaTuru}
-                  onChange={handleInputChange}
-                  className="modern-select"
-                >
-                  <option value="bisiklet">Bisiklet Yaka</option>
-                  <option value="v">V Yaka</option>
-                  <option value="polo">Polo Yaka</option>
-                </select>
-              </div>
-            </div>
-          )}
-
-          <div className="form-grup">
-            <label>Beden Tablosu</label>
-            <div className="beden-grid">
-              {Object.entries(bedenTablosu).map(([beden, adet]) => (
-                <div key={beden} className="beden-input">
-                  <label>{beden}</label>
+              {/* Sipariş Tarihi ve Nakış/Baskı */}
+              <div className="form-row">
+                <div className="modern-form-group">
+                  <label htmlFor="siparisTarihi">
+                    <span className="label-icon">📅</span>
+                    Sipariş Tarihi
+                  </label>
                   <input
-                    type="number"
-                    min="0"
-                    value={adet}
-                    onChange={(e) => handleBedenChange(beden, parseInt(e.target.value) || 0)}
+                    type="date"
+                    id="siparisTarihi"
+                    name="siparisTarihi"
+                    value={formData.siparisTarihi}
+                    onChange={handleInputChange}
+                    required
+                    className="modern-input date-input"
                   />
                 </div>
-              ))}
-            </div>
 
-            {Object.keys(ekstraBedenler).length > 0 && (
-              <div className="ekstra-bedenler">
-                <h4>Ekstra Bedenler</h4>
+                <div className="modern-form-group">
+                  <label htmlFor="nakisBaskiDurumu">
+                    <span className="label-icon">🎨</span>
+                    Nakış/Baskı Durumu
+                  </label>
+                  <select
+                    id="nakisBaskiDurumu"
+                    name="nakisBaskiDurumu"
+                    value={formData.nakisBaskiDurumu}
+                    onChange={handleInputChange}
+                    className="modern-select"
+                  >
+                                         {nakisBaskiSecenekleri.map(secenek => (
+                       <option key={secenek.value} value={secenek.value}>
+                         {secenek.label}
+                       </option>
+                     ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Model/Kol-Yaka Seçimi */}
+              {formData.siparisTuru === '3iplik' ? (
+                <div className="form-section-header">
+                  <h3>
+                    <span className="section-icon">🧥</span>
+                    3 İplik Modeli
+                  </h3>
+                  <div className="form-row">
+                    <div className="modern-form-group">
+                      <label htmlFor="ucIplikModeli">
+                        <span className="label-icon">🏷️</span>
+                        Model
+                      </label>
+                      <select
+                        id="ucIplikModeli"
+                        name="ucIplikModeli"
+                        value={formData.ucIplikModeli}
+                        onChange={handleInputChange}
+                        className="modern-select"
+                      >
+                        {ucIplikModelleri.map(model => (
+                          <option key={model.value} value={model.value}>
+                            {model.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              ) : formData.siparisTuru === 'polar' ? (
+                <div className="form-section-header">
+                  <h3>
+                    <span className="section-icon">🧣</span>
+                    Polar Modeli
+                  </h3>
+                  <div className="form-row">
+                    <div className="modern-form-group">
+                      <label htmlFor="polarModeli">
+                        <span className="label-icon">🏷️</span>
+                        Model
+                      </label>
+                      <select
+                        id="polarModeli"
+                        name="polarModeli"
+                        value={formData.polarModeli}
+                        onChange={handleInputChange}
+                        className="modern-select"
+                      >
+                        {polarModelleri.map(model => (
+                          <option key={model.value} value={model.value}>
+                            {model.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="form-section-header">
+                  <h3>
+                    <span className="section-icon">✂️</span>
+                    Kol ve Yaka Bilgileri
+                  </h3>
+                  <div className="form-row">
+                    <div className="modern-form-group">
+                      <label htmlFor="kolTuru">
+                        <span className="label-icon">👔</span>
+                        Kol Bilgisi
+                      </label>
+                      <select
+                        id="kolTuru"
+                        name="kolTuru"
+                        value={formData.kolTuru}
+                        onChange={handleInputChange}
+                        className="modern-select"
+                      >
+                        <option value="kisa">Kısa Kol</option>
+                        <option value="uzun">Uzun Kol</option>
+                        <option value="yetim">Yetim Kol</option>
+                        <option value="kisa-ribanali">Kısa Ribanalı</option>
+                      </select>
+                    </div>
+
+                    <div className="modern-form-group">
+                      <label htmlFor="yakaTuru">
+                        <span className="label-icon">👕</span>
+                        Yaka Bilgisi
+                      </label>
+                      <select
+                        id="yakaTuru"
+                        name="yakaTuru"
+                        value={formData.yakaTuru}
+                        onChange={handleInputChange}
+                        className="modern-select"
+                      >
+                        <option value="bisiklet">Bisiklet Yaka</option>
+                        <option value="v">V Yaka</option>
+                        <option value="polo">Polo Yaka</option>
+                        <option value="hakim">Hakim Yaka</option>
+                        <option value="gomlek">Gömlek Yaka</option>
+                        <option value="yapma">Yapma Yaka</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Beden Tablosu */}
+              <div className="form-section-header">
+                <h3>
+                  <span className="section-icon">📏</span>
+                  Beden Tablosu
+                </h3>
+              </div>
+              
+              <div className="modern-beden-container">
                 <div className="beden-grid">
-                  {Object.entries(ekstraBedenler).map(([beden, adet]) => (
-                    <div key={beden} className="beden-input ekstra">
-                      <label>{beden}</label>
-                      <div className="ekstra-beden-controls">
-                        <input
-                          type="number"
-                          min="0"
-                          value={adet}
-                          onChange={(e) => handleBedenChange(beden, parseInt(e.target.value) || 0)}
-                        />
-                        <button
-                          type="button"
-                          className="sil-btn"
-                          onClick={() => ekstraBedenSil(beden)}
-                        >
-                          ×
-                        </button>
-                      </div>
+                  {Object.entries(bedenTablosu).map(([beden, adet]) => (
+                    <div key={beden} className="modern-beden-input">
+                      <label className="beden-label">{beden}</label>
+                      <input
+                        type="text"
+                        value={adet}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === '' || /^\d+$/.test(value)) {
+                            handleBedenChange(beden, parseInt(value) || 0);
+                          }
+                        }}
+                        className="beden-input-field"
+                      />
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
 
-            <div className="yeni-beden">
-              <input
-                type="text"
-                placeholder="Yeni beden adı (örn: 5XL, XXXL)"
-                value={yeniBeden}
-                onChange={(e) => setYeniBeden(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    ekstraBedenEkle();
-                  }
-                }}
-              />
-              <button type="button" onClick={ekstraBedenEkle} className="ekle-btn">
-                Beden Ekle
-              </button>
-            </div>
-          </div>
+                {Object.keys(ekstraBedenler).length > 0 && (
+                  <div className="ekstra-bedenler-section">
+                    <h4 className="ekstra-bedenler-title">
+                      <span className="section-icon">➕</span>
+                      Ekstra Bedenler
+                    </h4>
+                    <div className="beden-grid">
+                      {Object.entries(ekstraBedenler).map(([beden, adet]) => (
+                        <div key={beden} className="modern-beden-input ekstra">
+                          <label className="beden-label">{beden}</label>
+                          <div className="ekstra-beden-controls">
+                            <input
+                              type="text"
+                              value={adet}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (value === '' || /^\d+$/.test(value)) {
+                                  handleBedenChange(beden, parseInt(value) || 0);
+                                }
+                              }}
+                              className="beden-input-field"
+                            />
+                            <button
+                              type="button"
+                              className="modern-sil-btn"
+                              onClick={() => ekstraBedenSil(beden)}
+                              title="Bedeni sil"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-          <div className="form-grup not-alani">
-            <label htmlFor="not">Ekstra Not</label>
-            <textarea
-              id="not"
-              name="not"
-              value={formData.not}
-              onChange={handleInputChange}
-              rows={6}
-              placeholder="Siparişle ilgili özel notlar, dikkat edilmesi gereken hususlar veya ek bilgiler yazabilirsiniz..."
-              className="genis-not-alani"
-            />
-          </div>
-
-          <div className="form-actions">
-            <button type="button" onClick={() => router.push('/')} className="iptal-btn">
-              İptal
-            </button>
-            <button type="submit" className="kaydet-btn">
-              Siparişi Kaydet
-            </button>
-          </div>
-        </form>
-
-        {/* Ürün Önizlemesi */}
-        <div className="gorsel-onizleme">
-          <h3>Ürün Önizlemesi</h3>
-          
-          <div className="onizleme-ana">
-            {kombinasyon ? (
-              <div className="kombinasyon-onizleme">
-                <div className="kombinasyon-gorsel-buyuk">
-                  <img src={kombinasyon.gorsel} alt={kombinasyon.isim} />
-                </div>
-                <div className="kombinasyon-bilgi">
-                  <h4>{kombinasyon.isim}</h4>
-                  <div className="kombinasyon-detaylar">
-                    <p><strong>Sipariş Türü:</strong> {
-                      formData.siparisTuru === 'suprem' ? 'Süprem' : 
-                      formData.siparisTuru === 'lakost' ? 'Lakost' : 
-                      formData.siparisTuru === 'yagmurdesen' ? 'Yağmurdesen' : 
-                      formData.siparisTuru === '3iplik' ? '3 İplik' : 'Polar'
-                    }</p>
-                    <p><strong>Renk:</strong> {renkler.find(r => r.id === formData.renkId)?.isim}</p>
-                    {formData.siparisTuru === '3iplik' ? (
-                      <p><strong>Model:</strong> {ucIplikModelleri.find(m => m.value === formData.ucIplikModeli)?.label}</p>
-                    ) : formData.siparisTuru === 'polar' ? (
-                      <p><strong>Model:</strong> {polarModelleri.find(m => m.value === formData.polarModeli)?.label}</p>
-                    ) : (
-                      <>
-                        <p><strong>Kol Türü:</strong> {
-                          formData.kolTuru === 'kisa' ? 'Kısa Kol' : 
-                          formData.kolTuru === 'uzun' ? 'Uzun Kol' : 
-                          formData.kolTuru === 'yetim' ? 'Yetim Kol' : 'Kısa Ribanalı'
-                        }</p>
-                        <p><strong>Yaka Türü:</strong> {
-                          formData.yakaTuru === 'bisiklet' ? 'Bisiklet Yaka' : 
-                          formData.yakaTuru === 'v' ? 'V Yaka' : 'Polo Yaka'
-                        }</p>
-                      </>
-                    )}
+                <div className="yeni-beden-section">
+                  <div className="yeni-beden-input">
+                    <input
+                      type="text"
+                      placeholder="Yeni beden adı (örn: 5XL, XXXL)"
+                      value={yeniBeden}
+                      onChange={(e) => setYeniBeden(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          ekstraBedenEkle();
+                        }
+                      }}
+                      className="modern-input"
+                    />
+                    <button 
+                      type="button" 
+                      onClick={ekstraBedenEkle} 
+                      className="modern-ekle-btn"
+                    >
+                      <span className="btn-icon">➕</span>
+                      Beden Ekle
+                    </button>
                   </div>
                 </div>
               </div>
-            ) : (
-              <div className="kombinasyon-bulunamadi">
-                <div className="placeholder-gorsel">
-                  <span>📷</span>
+
+              {/* Notlar */}
+              <div className="form-section-header">
+                <h3>
+                  <span className="section-icon">📝</span>
+                  Ekstra Notlar
+                </h3>
+              </div>
+              
+              <div className="modern-form-group">
+                <textarea
+                  id="not"
+                  name="not"
+                  value={formData.not}
+                  onChange={handleInputChange}
+                  rows={6}
+                  placeholder="Siparişle ilgili özel notlar, dikkat edilmesi gereken hususlar veya ek bilgiler yazabilirsiniz..."
+                  className="modern-textarea"
+                />
+              </div>
+
+              {/* Form Actions */}
+              <div className="modern-form-actions">
+                <button 
+                  type="button" 
+                  onClick={() => router.push('/')} 
+                  className="modern-iptal-btn"
+                >
+                  <span className="btn-icon">✕</span>
+                  İptal
+                </button>
+                <button 
+                  type="submit" 
+                  className="modern-kaydet-btn"
+                  disabled={!formData.musteriId || !formData.renkId || toplamUrun === 0}
+                >
+                  <span className="btn-icon">💾</span>
+                  Siparişi Kaydet
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Preview Section */}
+          <div className="preview-section">
+            <div className="preview-header">
+              <h3>
+                <span className="section-icon">👁️</span>
+                Ürün Önizlemesi
+              </h3>
+            </div>
+            
+            <div className="preview-content">
+              {kombinasyon ? (
+                <div className="product-preview">
+                  <div className="preview-image">
+                    <img src={kombinasyon.gorsel} alt={kombinasyon.isim} />
+                  </div>
+                  <div className="preview-info">
+                    <h4 className="product-name">{kombinasyon.isim}</h4>
+                    <div className="product-specs">
+                      <div className="spec-item">
+                        <span className="spec-label">Tür:</span>
+                        <span className="spec-value">
+                          {siparisTurleri.find(t => t.value === formData.siparisTuru)?.label}
+                        </span>
+                      </div>
+                      <div className="spec-item">
+                        <span className="spec-label">Renk:</span>
+                        <span className="spec-value">
+                          🎨 {renkler.find(r => r.id === formData.renkId)?.isim}
+                        </span>
+                      </div>
+                      {formData.siparisTuru === '3iplik' ? (
+                        <div className="spec-item">
+                          <span className="spec-label">Model:</span>
+                          <span className="spec-value">
+                            {ucIplikModelleri.find(m => m.value === formData.ucIplikModeli)?.label}
+                          </span>
+                        </div>
+                      ) : formData.siparisTuru === 'polar' ? (
+                        <div className="spec-item">
+                          <span className="spec-label">Model:</span>
+                          <span className="spec-value">
+                            {polarModelleri.find(m => m.value === formData.polarModeli)?.label}
+                          </span>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="spec-item">
+                            <span className="spec-label">Kol:</span>
+                            <span className="spec-value">
+                              {formData.kolTuru === 'kisa' ? 'Kısa Kol' : 
+                               formData.kolTuru === 'uzun' ? 'Uzun Kol' : 
+                               formData.kolTuru === 'yetim' ? 'Yetim Kol' : 'Kısa Ribanalı'}
+                            </span>
+                          </div>
+                          <div className="spec-item">
+                            <span className="spec-label">Yaka:</span>
+                            <span className="spec-value">
+                              {formData.yakaTuru === 'bisiklet' ? 'Bisiklet Yaka' : 
+                               formData.yakaTuru === 'v' ? 'V Yaka' : 
+                               formData.yakaTuru === 'polo' ? 'Polo Yaka' :
+                               formData.yakaTuru === 'hakim' ? 'Hakim Yaka' :
+                               formData.yakaTuru === 'gomlek' ? 'Gömlek Yaka' :
+                               formData.yakaTuru === 'yapma' ? 'Yapma Yaka' : formData.yakaTuru}
+                            </span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="no-preview">
+                  <div className="no-preview-icon">📷</div>
                   <h4>Ürün Görseli Bulunamadı</h4>
                   <p>Bu kombinasyon için henüz görsel eklenmemiş.</p>
                   {formData.renkId && (
-                    <div className="secili-kombinasyon">
+                    <div className="selected-combo">
                       <p><strong>Seçili Kombinasyon:</strong></p>
-                      <p>{
-                        formData.siparisTuru === 'suprem' ? 'Süprem' : 
-                        formData.siparisTuru === 'lakost' ? 'Lakost' : 
-                        formData.siparisTuru === 'yagmurdesen' ? 'Yağmurdesen' : 
-                        formData.siparisTuru === '3iplik' ? '3 İplik' : 'Polar'
-                      } - {renkler.find(r => r.id === formData.renkId)?.isim}{
-                        formData.siparisTuru === '3iplik' 
-                          ? ` - ${ucIplikModelleri.find(m => m.value === formData.ucIplikModeli)?.label}`
-                          : formData.siparisTuru === 'polar' 
-                            ? ` - ${polarModelleri.find(m => m.value === formData.polarModeli)?.label}`
-                            : ` - ${
-                                formData.kolTuru === 'kisa' ? 'Kısa Kol' : 
-                                formData.kolTuru === 'uzun' ? 'Uzun Kol' : 
-                                formData.kolTuru === 'yetim' ? 'Yetim Kol' : 'Kısa Ribanalı'
-                              } - ${
-                                formData.yakaTuru === 'bisiklet' ? 'Bisiklet Yaka' : 
-                                formData.yakaTuru === 'v' ? 'V Yaka' : 'Polo Yaka'
-                              }`
-                      }</p>
+                      <div className="combo-details">
+                        <span className="combo-type">
+                          {siparisTurleri.find(t => t.value === formData.siparisTuru)?.label}
+                        </span>
+                        <span className="combo-color">
+                          🎨 {renkler.find(r => r.id === formData.renkId)?.isim}
+                        </span>
+                      </div>
                     </div>
                   )}
                   <button 
                     type="button" 
-                    className="gorsel-ekle-btn"
+                    className="add-image-btn"
                     onClick={() => router.push('/gorseller')}
                   >
+                    <span className="btn-icon">📸</span>
                     Görsel Ekle
                   </button>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          <div className="onizleme-ozet">
-            <h4>Sipariş Özeti</h4>
-            <div className="ozet-bilgi">
-              <p><strong>Müşteri:</strong> {musteriler.find(m => m.id === formData.musteriId)?.isim || 'Seçilmedi'}</p>
-              <p><strong>Toplam Ürün:</strong> {Object.values(bedenTablosu).reduce((a, b) => a + b, 0) + Object.values(ekstraBedenler).reduce((a, b) => a + b, 0)} adet</p>
-              <p><strong>Nakış/Baskı:</strong> {nakisBaskiSecenekleri.find(s => s.value === formData.nakisBaskiDurumu)?.label}</p>
+            {/* Order Summary */}
+            <div className="order-summary">
+              <h4 className="summary-title">
+                <span className="section-icon">📊</span>
+                Sipariş Özeti
+              </h4>
+              <div className="summary-items">
+                <div className="summary-item">
+                  <span className="summary-label">👤 Müşteri:</span>
+                  <span className="summary-value">
+                    {musteriler.find(m => m.id === formData.musteriId)?.isim || 'Seçilmedi'}
+                  </span>
+                </div>
+                <div className="summary-item">
+                  <span className="summary-label">📦 Toplam Ürün:</span>
+                  <span className="summary-value highlight">{toplamUrun} adet</span>
+                </div>
+                <div className="summary-item">
+                  <span className="summary-label">🎨 Nakış/Baskı:</span>
+                  <span className="summary-value">
+                    {nakisBaskiSecenekleri.find(s => s.value === formData.nakisBaskiDurumu)?.label}
+                  </span>
+                </div>
+                <div className="summary-item">
+                  <span className="summary-label">📅 Tarih:</span>
+                  <span className="summary-value">
+                    {new Date(formData.siparisTarihi).toLocaleDateString('tr-TR')}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

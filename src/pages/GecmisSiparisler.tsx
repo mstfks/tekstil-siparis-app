@@ -521,6 +521,9 @@ const GecmisSiparisler: React.FC = () => {
       case 'bisiklet': return 'Bisiklet Yaka';
       case 'v': return 'V Yaka';
       case 'polo': return 'Polo Yaka';
+      case 'hakim': return 'Hakim Yaka';
+      case 'gomlek': return 'Gömlek Yaka';
+      case 'yapma': return 'Yapma Yaka';
       default: return yaka;
     }
   };
@@ -581,274 +584,435 @@ const GecmisSiparisler: React.FC = () => {
   };
 
   return (
-    <div className="gecmis-siparisler">
-      <div className="sayfa-header">
-        <div className="header-sol">
-          <h1>Geçmiş Siparişler</h1>
-        </div>
-        <div className="header-sag">
-          <div className="arama-container">
-            <input
-              type="text"
-              placeholder="Müşteri ismi ara..."
-              value={aramaMetni}
-              onChange={(e) => setAramaMetni(e.target.value)}
-              className="arama-input"
-            />
-            {aramaMetni && (
-              <button
-                className="temizle-btn"
-                onClick={() => setAramaMetni('')}
-                title="Aramayı temizle"
-              >
-                ✕
-              </button>
-            )}
+    <div className="modern-gecmis-siparisler">
+      {/* Modern Header Section */}
+      <div className="modern-header">
+        <div className="header-content">
+          <div className="header-left">
+            <div className="title-section">
+              <h1 className="page-title">
+                <span className="title-icon">📜</span>
+                Geçmiş Siparişler
+              </h1>
+              <div className="stats-badge">
+                <span className="count">{gecmisSiparisler.length}</span>
+                <span className="label">sipariş</span>
+              </div>
+            </div>
+            <p className="subtitle">Tamamlanan ve iptal edilen siparişleriniz</p>
           </div>
-          <div className="filtre-grup">
-            <button
-              className={`filtre-btn ${filtre === 'hepsi' ? 'aktif' : ''}`}
-              onClick={() => setFiltre('hepsi')}
-            >
-              Hepsi ({gecmisSiparisler.length})
-            </button>
-            <button
-              className={`filtre-btn ${filtre === 'tamamlandi' ? 'aktif' : ''}`}
-              onClick={() => setFiltre('tamamlandi')}
-            >
-              Tamamlanan ({gecmisSiparisler.filter(s => s.durum === 'tamamlandi').length})
-            </button>
-            <button
-              className={`filtre-btn ${filtre === 'iptal' ? 'aktif' : ''}`}
-              onClick={() => setFiltre('iptal')}
-            >
-              İptal Edilen ({gecmisSiparisler.filter(s => s.durum === 'iptal').length})
-            </button>
+          
+          <div className="header-right">
+            <div className="controls-group">
+              <div className="search-container">
+                <div className="search-input-wrapper">
+                  <span className="search-icon">🔍</span>
+                  <input
+                    type="text"
+                    placeholder="Müşteri ismi ara..."
+                    value={aramaMetni}
+                    onChange={(e) => setAramaMetni(e.target.value)}
+                    className="modern-search-input"
+                  />
+                  {aramaMetni && (
+                    <button
+                      className="clear-search-btn"
+                      onClick={() => setAramaMetni('')}
+                      title="Aramayı temizle"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+              
+              <div className="filter-group">
+                <button
+                  className={`filter-btn ${filtre === 'hepsi' ? 'active' : ''}`}
+                  onClick={() => setFiltre('hepsi')}
+                >
+                  <span className="filter-icon">📋</span>
+                  <span className="filter-text">Hepsi</span>
+                  <span className="filter-count">({gecmisSiparisler.length})</span>
+                </button>
+                <button
+                  className={`filter-btn ${filtre === 'tamamlandi' ? 'active' : ''}`}
+                  onClick={() => setFiltre('tamamlandi')}
+                >
+                  <span className="filter-icon">✅</span>
+                  <span className="filter-text">Tamamlanan</span>
+                  <span className="filter-count">({gecmisSiparisler.filter(s => s.durum === 'tamamlandi').length})</span>
+                </button>
+                <button
+                  className={`filter-btn ${filtre === 'iptal' ? 'active' : ''}`}
+                  onClick={() => setFiltre('iptal')}
+                >
+                  <span className="filter-icon">❌</span>
+                  <span className="filter-text">İptal</span>
+                  <span className="filter-count">({gecmisSiparisler.filter(s => s.durum === 'iptal').length})</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {filtreliSiparisler.length === 0 ? (
-        <div className="bos-liste">
-          <p>
-            {aramaMetni ? (
-              `"${aramaMetni}" araması için sonuç bulunamadı.`
-            ) : filtre === 'hepsi' ? (
-              'Henüz geçmiş sipariş bulunmuyor.'
-            ) : (
-              `Henüz ${filtre === 'tamamlandi' ? 'tamamlanan' : 'iptal edilen'} sipariş bulunmuyor.`
-            )}
-          </p>
-        </div>
-      ) : (
-        <div className="siparis-gruplari">
-          {siraliGruplar.map((grup) => {
-            const grupAnahtari = `${grup.yil}-${grup.ay}`;
-            const acik = acikGruplar.has(grupAnahtari);
-            
-            return (
-              <div key={grupAnahtari} className="siparis-grup">
-                <div 
-                  className="grup-baslik"
-                  onClick={() => grupToggle(grupAnahtari)}
-                >
-                  <div className="grup-baslik-sol">
-                    <button className="daralt-btn">
-                      <svg 
-                        width="16" 
-                        height="16" 
-                        viewBox="0 0 24 24" 
-                        fill="none" 
-                        className={`daralt-ikon ${acik ? 'acik' : ''}`}
-                      >
-                        <path 
-                          d="M9 18L15 12L9 6" 
-                          stroke="currentColor" 
-                          strokeWidth="2" 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </button>
-                    <h2>{grup.baslik}</h2>
+      {/* Content Section */}
+      <div className="content-area">
+        {filtreliSiparisler.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-icon">📦</div>
+            <div className="empty-content">
+              {aramaMetni ? (
+                <>
+                  <h3>Sonuç bulunamadı</h3>
+                  <p>"{aramaMetni}" araması için sipariş bulunamadı</p>
+                  <button 
+                    className="clear-filter-btn"
+                    onClick={() => setAramaMetni('')}
+                  >
+                    Filtreyi temizle
+                  </button>
+                </>
+              ) : filtre === 'hepsi' ? (
+                <>
+                  <h3>Henüz geçmiş sipariş yok</h3>
+                  <p>Tamamlanan veya iptal edilen siparişleriniz burada görünecek</p>
+                  <div className="quick-actions">
+                    <span className="tip">💡 İpucu: Aktif siparişlerinizi tamamlayın veya iptal edin</span>
                   </div>
-                  <span className="grup-sayisi">{grup.siparisler.length} sipariş</span>
-                </div>
-                {acik && (
-                  <div className="siparis-listesi">
-                    {grup.siparisler.map((siparis) => (
-                      <div
-                        key={siparis.id}
-                        className="siparis-kart"
-                        onClick={() => siparisDetayiGoster(siparis)}
-                      >
-                        <div className="siparis-bilgi">
-                          <div className="siparis-baslik">
-                            <h3>
-                              {siparis.musteriIsmi} #{siparis.siparisNo} - {siparis.tarih.toLocaleDateString('tr-TR')}
-                              {siparis.not && siparis.not.trim() && (
-                                <span className="not-ikonu" title={`Not: ${siparis.not}`}>📝</span>
-                              )}
-                            </h3>
-                            <span className={`durum-badge ${durumRengi(siparis.durum)}`}>{durumMetni(siparis.durum)}</span>
-                          </div>
-                          <div className="siparis-detaylar">
-                            <p>{siparis.toplamUrun} adet {
-                              siparis.siparisTuru === '3iplik' 
-                                ? `${siparisTuruMetni(siparis.siparisTuru)} ${siparis.renkIsmi} ${ucIplikModeliMetni(siparis.ucIplikModeli)}`
-                                : siparis.siparisTuru === 'polar' 
-                                  ? siparis.polarModeli 
-                                    ? `${siparisTuruMetni(siparis.siparisTuru)} ${siparis.renkIsmi} ${polarModeliMetni(siparis.polarModeli)}`
-                                    : `${siparisTuruMetni(siparis.siparisTuru)} ${siparis.renkIsmi} (Model Belirtilmemiş)`
-                                  : `${yakaTuruMetni(siparis.yakaTuru)} ${kolTuruMetni(siparis.kolTuru)} ${siparis.renkIsmi} ${siparisTuruMetni(siparis.siparisTuru)}`
-                            }</p>
-                          </div>
-                        </div>
-                        <div className="siparis-actions">
-                          <button
-                            className="yazdir-btn"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleYazdir(siparis);
-                            }}
-                            title="Yazdır"
-                          >
-                            🖨️
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {seciliSiparis && (
-        <div className="modal-overlay" onClick={modalKapat}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Sipariş Detayı #{seciliSiparis.siparisNo}</h2>
-              <div className="header-actions">
-                <span className={`durum-badge ${durumRengi(seciliSiparis.durum)}`}>
-                  {durumMetni(seciliSiparis.durum)}
-                </span>
-                <button 
-                  className="modal-yazdir-btn"
-                  onClick={() => handleYazdir(seciliSiparis)}
-                  title="Yazdır"
-                >
-                  🖨️ Yazdır
-                </button>
-                <button className="kapat-btn" onClick={modalKapat}>×</button>
-              </div>
+                </>
+              ) : (
+                <>
+                  <h3>Henüz {filtre === 'tamamlandi' ? 'tamamlanan' : 'iptal edilen'} sipariş yok</h3>
+                  <p>Bu kategoride henüz sipariş bulunmuyor</p>
+                  <button 
+                    className="clear-filter-btn"
+                    onClick={() => setFiltre('hepsi')}
+                  >
+                    Tüm siparişleri göster
+                  </button>
+                </>
+              )}
             </div>
-            <div className="modal-body">
-              <div className="detay-grup">
-                <h3>Müşteri Bilgileri</h3>
-                <p><strong>Müşteri:</strong> {seciliSiparis.musteriIsmi}</p>
-                <p><strong>Sipariş Tarihi:</strong> {seciliSiparis.tarih.toLocaleDateString('tr-TR')}</p>
-                <p><strong>Sipariş Türü:</strong> {siparisTuruMetni(seciliSiparis.siparisTuru)}</p>
-              </div>
-
-              <div className="detay-grup">
-                <h3>Ürün Bilgileri</h3>
-                <p><strong>Renk:</strong> {seciliSiparis.renkIsmi}</p>
-                {seciliSiparis.siparisTuru === '3iplik' ? (
-                  <p><strong>Model:</strong> {ucIplikModeliMetni(seciliSiparis.ucIplikModeli)}</p>
-                ) : seciliSiparis.siparisTuru === 'polar' ? (
-                  <p><strong>Model:</strong> {seciliSiparis.polarModeli ? polarModeliMetni(seciliSiparis.polarModeli) : 'Belirtilmemiş'}</p>
-                ) : (
-                  <>
-                    <p><strong>Kol Türü:</strong> {kolTuruMetni(seciliSiparis.kolTuru)}</p>
-                    <p><strong>Yaka Türü:</strong> {yakaTuruMetni(seciliSiparis.yakaTuru)}</p>
-                  </>
-                )}
-                <p><strong>Nakış/Baskı:</strong> {nakisBaskiMetni(seciliSiparis.nakisBaskiDurumu)}</p>
-                <p><strong>Toplam Ürün:</strong> {seciliSiparis.toplamUrun} adet</p>
-              </div>
-
-              {/* Ürün Görseli */}
-              <div className="detay-grup">
-                <h3>Ürün Görseli</h3>
-                <div className="modal-urun-gorsel">
-                  {seciliSiparis.kombinasyonGorsel ? (
-                    <div className="urun-gorsel-container">
-                      <img 
-                        src={seciliSiparis.kombinasyonGorsel} 
-                        alt={`${seciliSiparis.renkIsmi} ${siparisTuruMetni(seciliSiparis.siparisTuru)}`}
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                          const parent = target.parentElement;
-                          if (parent) {
-                            parent.innerHTML = '<div class="gorsel-yok"><span>📷</span><p>Görsel mevcut değil</p></div>';
-                          }
-                        }}
-                      />
-                      <div className="gorsel-bilgi">
-                        <p><strong>Kombinasyon:</strong> {seciliSiparis.renkIsmi} {siparisTuruMetni(seciliSiparis.siparisTuru)}</p>
-                      </div>
+          </div>
+        ) : (
+          <div className="history-groups">
+            {siraliGruplar.map((grup, grupIndex) => {
+              const grupAnahtari = `${grup.yil}-${grup.ay}`;
+              const acik = acikGruplar.has(grupAnahtari);
+              
+              return (
+                <div key={grupAnahtari} className="history-group" style={{ '--animation-delay': `${grupIndex * 0.1}s` } as React.CSSProperties}>
+                  <div 
+                    className="group-header"
+                    onClick={() => grupToggle(grupAnahtari)}
+                  >
+                    <div className="group-header-left">
+                      <button className="expand-btn">
+                        <span className={`expand-icon ${acik ? 'expanded' : 'collapsed'}`}>
+                          {acik ? '📂' : '📁'}
+                        </span>
+                      </button>
+                      <h2 className="group-title">{grup.baslik}</h2>
                     </div>
-                  ) : (
-                    <div className="gorsel-yok">
-                      <span>📷</span>
-                      <p>Bu sipariş için görsel mevcut değil</p>
+                    <div className="group-header-right">
+                      <span className="group-count">{grup.siparisler.length} sipariş</span>
+                      <span className="chevron-icon">{acik ? '⬆️' : '⬇️'}</span>
+                    </div>
+                  </div>
+                  
+                  {acik && (
+                    <div className="group-content">
+                      <div className="orders-list">
+                        {grup.siparisler.map((siparis, index) => (
+                          <div
+                            key={siparis.id}
+                            className="modern-order-row history-order"
+                            onClick={() => siparisDetayiGoster(siparis)}
+                            style={{ '--animation-delay': `${index * 0.05}s` } as React.CSSProperties}
+                          >
+                            <div className="row-content">
+                              <div className="row-left">
+                                <div className="order-info">
+                                  <div className="order-header">
+                                    <span className="order-number">#{siparis.siparisNo}</span>
+                                    <span className="order-date">{siparis.tarih.toLocaleDateString('tr-TR')}</span>
+                                  </div>
+                                  <div className="customer-row">
+                                    <span className="customer-icon">👤</span>
+                                    <span className="customer-name">{siparis.musteriIsmi}</span>
+                                    {siparis.not && siparis.not.trim() && (
+                                      <span className="note-indicator" title={`Not: ${siparis.not}`}>📝</span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="row-center">
+                                <div className="product-summary">
+                                  <div className="quantity-info">
+                                    <span className="quantity">{siparis.toplamUrun}</span>
+                                    <span className="unit">adet</span>
+                                  </div>
+                                  <div className="product-description">
+                                    <div className="product-line">
+                                      {siparis.siparisTuru === '3iplik' 
+                                        ? `${siparisTuruMetni(siparis.siparisTuru)} ${ucIplikModeliMetni(siparis.ucIplikModeli)}`
+                                        : siparis.siparisTuru === 'polar' 
+                                          ? siparis.polarModeli 
+                                            ? `${siparisTuruMetni(siparis.siparisTuru)} ${polarModeliMetni(siparis.polarModeli)}`
+                                            : `${siparisTuruMetni(siparis.siparisTuru)} (Model Belirtilmemiş)`
+                                          : `${yakaTuruMetni(siparis.yakaTuru)} ${kolTuruMetni(siparis.kolTuru)} ${siparisTuruMetni(siparis.siparisTuru)}`
+                                      }
+                                    </div>
+                                    <div className="color-line">
+                                      <span className="color-label">Renk:</span>
+                                      <span className="color-value">{siparis.renkIsmi}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="row-right">
+                                <div className="status-section">
+                                  <span className={`status-badge ${siparis.durum}`}>
+                                    <span className="status-icon">
+                                      {siparis.durum === 'tamamlandi' ? '✅' : '❌'}
+                                    </span>
+                                    <span className="status-text">{durumMetni(siparis.durum)}</span>
+                                  </span>
+                                </div>
+                                <div className="row-actions">
+                                  <button
+                                    className="action-btn print-btn"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleYazdir(siparis);
+                                    }}
+                                    title="Yazdır"
+                                  >
+                                    <span className="btn-icon">🖨️</span>
+                                    <span className="btn-text">Yazdır</span>
+                                  </button>
+                                  
+                                  {(siparis.durum === 'tamamlandi' || siparis.durum === 'iptal') && (
+                                    <button
+                                      className="action-btn restore-btn"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        siparisAktifeDonustur(siparis.id);
+                                      }}
+                                      title="Aktif siparişlere geri döndür"
+                                    >
+                                      <span className="btn-icon">🔄</span>
+                                      <span className="btn-text">Geri Al</span>
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Modern Modal */}
+      {seciliSiparis && (
+        <div className="modal-overlay" onClick={modalKapat}>
+          <div className="modern-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modern-modal-header">
+              <div className="modal-title-section">
+                <h2>
+                  <span className="modal-icon">📜</span>
+                  Sipariş Detayı
+                </h2>
+              </div>
+              <div className="modal-header-actions">
+                <span className={`status-badge ${seciliSiparis.durum}`}>
+                  <span className="status-icon">
+                    {seciliSiparis.durum === 'tamamlandi' ? '✅' : '❌'}
+                  </span>
+                  <span className="status-text">{durumMetni(seciliSiparis.durum)}</span>
+                </span>
+                <button className="modern-close-btn" onClick={modalKapat}>
+                  <span>✕</span>
+                </button>
+              </div>
+            </div>
+            
+            <div className="modern-modal-body">
+              {/* Üst Kısım - Müşteri ve Tarih Bilgileri */}
+              <div className="modal-top-section">
+                <div className="customer-header">
+                  <div className="customer-info-header">
+                    <span className="customer-icon-large">👤</span>
+                                         <div className="customer-details">
+                       <h3 className="customer-name-large">
+                         {seciliSiparis.musteriIsmi}
+                         <span className="order-number-inline">#{seciliSiparis.siparisNo}</span>
+                       </h3>
+                       <p className="order-date-large">
+                         <span className="date-icon">📅</span>
+                         {seciliSiparis.tarih.toLocaleDateString('tr-TR', { 
+                           weekday: 'long', 
+                           year: 'numeric', 
+                           month: 'long', 
+                           day: 'numeric' 
+                         })}
+                       </p>
+                     </div>
+                  </div>
+                  <div className="quantity-info-large">
+                    <span className="quantity-number">{seciliSiparis.toplamUrun}</span>
+                    <span className="quantity-label">adet</span>
+                  </div>
+                </div>
               </div>
 
-              <div className="detay-grup">
-                <h3>Beden Tablosu</h3>
-                <div className="beden-tablosu">
-                  {Object.entries(seciliSiparis.bedenTablosu).map(([beden, adet]) => (
-                    adet > 0 && (
-                      <div key={beden} className="beden-item">
-                        <span className="beden">{beden}:</span>
-                        <span className="adet">{adet} adet</span>
+              {/* Orta Kısım - Görsel ve Ürün Bilgileri Yan Yana */}
+              <div className="modal-middle-section">
+                <div className="image-column">
+                  <div className="modal-image-container">
+                    {seciliSiparis.kombinasyonGorsel ? (
+                      <div className="image-wrapper">
+                        <img 
+                          src={seciliSiparis.kombinasyonGorsel} 
+                          alt="Ürün Görseli"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent) {
+                              parent.innerHTML = '<div class="no-image"><span class="no-image-icon">📷</span><p>Görsel bulunamadı</p></div>';
+                            }
+                          }}
+                        />
                       </div>
-                    )
-                  ))}
+                    ) : (
+                      <div className="no-image">
+                        <span className="no-image-icon">📷</span>
+                        <p>Görsel bulunamadı</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="product-column">
+                  <div className="product-info-section">
+                    <h3 className="section-title">
+                      <span className="section-icon">👕</span>
+                      Ürün Özellikleri
+                    </h3>
+                    
+                    <div className="product-specs">
+                      <div className="spec-item primary">
+                        <span className="spec-label">Sipariş Türü</span>
+                        <span className="spec-value">{siparisTuruMetni(seciliSiparis.siparisTuru)}</span>
+                      </div>
+                      
+                      <div className="spec-item">
+                        <span className="spec-label">Renk</span>
+                        <span className="spec-value">{seciliSiparis.renkIsmi}</span>
+                      </div>
+
+                      {seciliSiparis.siparisTuru === '3iplik' ? (
+                        <div className="spec-item">
+                          <span className="spec-label">Model</span>
+                          <span className="spec-value">{ucIplikModeliMetni(seciliSiparis.ucIplikModeli)}</span>
+                        </div>
+                      ) : seciliSiparis.siparisTuru === 'polar' ? (
+                        <div className="spec-item">
+                          <span className="spec-label">Model</span>
+                          <span className="spec-value">{seciliSiparis.polarModeli ? polarModeliMetni(seciliSiparis.polarModeli) : 'Belirtilmemiş'}</span>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="spec-item">
+                            <span className="spec-label">Kol Türü</span>
+                            <span className="spec-value">{kolTuruMetni(seciliSiparis.kolTuru)}</span>
+                          </div>
+                          <div className="spec-item">
+                            <span className="spec-label">Yaka Türü</span>
+                            <span className="spec-value">{yakaTuruMetni(seciliSiparis.yakaTuru)}</span>
+                          </div>
+                        </>
+                      )}
+                      
+                      <div className="spec-item">
+                        <span className="spec-label">Nakış/Baskı</span>
+                        <span className="spec-value">{nakisBaskiMetni(seciliSiparis.nakisBaskiDurumu)}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {seciliSiparis.not && (
-                <div className="detay-grup">
-                  <h3>Notlar</h3>
-                  <div className="notlar-metni">{seciliSiparis.not}</div>
+              {/* Alt Kısım - Beden Dağılımı ve Notlar */}
+              <div className="modal-bottom-section">
+                <div className="sizes-section">
+                  <h3 className="section-title">
+                    <span className="section-icon">📏</span>
+                    Beden Dağılımı
+                  </h3>
+                  <div className="modal-size-grid">
+                    {Object.entries(seciliSiparis.bedenTablosu).map(([beden, adet]) => (
+                      adet > 0 && (
+                        <div key={beden} className="modal-size-item">
+                          <div className="size-label">{beden}</div>
+                          <div className="size-count">{adet}</div>
+                        </div>
+                      )
+                    ))}
+                  </div>
                 </div>
-              )}
 
-              <div className="modal-actions">
+                {seciliSiparis.not && (
+                  <div className="notes-section">
+                    <h3 className="section-title">
+                      <span className="section-icon">📝</span>
+                      Notlar
+                    </h3>
+                    <div className="notes-content">{seciliSiparis.not}</div>
+                  </div>
+                )}
+              </div>
+
+              <div className="modern-modal-actions">
+                <button
+                  className="modal-action-btn print"
+                  onClick={() => handleYazdir(seciliSiparis)}
+                >
+                  <span className="btn-icon">🖨️</span>
+                  <span className="btn-text">Yazdır</span>
+                </button>
+                
                 {(seciliSiparis.durum === 'tamamlandi' || seciliSiparis.durum === 'iptal') && (
                   <button
-                    className="geri-donustur-btn"
+                    className="modal-action-btn restore"
                     onClick={() => {
-                      showConfirmModal({
-                        title: 'Siparişi Aktife Döndür',
-                        message: 'Bu siparişi aktif siparişlere geri döndürmek istediğinizden emin misiniz?',
-                        confirmText: 'Aktife Döndür',
-                        cancelText: 'İptal',
-                        type: 'info',
-                        onConfirm: async () => {
-                          await siparisAktifeDonustur(seciliSiparis.id);
-                          modalKapat();
-                        }
-                      });
+                      siparisAktifeDonustur(seciliSiparis.id);
+                      modalKapat();
                     }}
                   >
-                    ↶ Aktif Siparişlere Geri Döndür
+                    <span className="btn-icon">🔄</span>
+                    <span className="btn-text">Aktife Döndür</span>
                   </button>
                 )}
                 
                 <button
-                  className="siparis-sil-btn"
+                  className="modal-action-btn delete"
                   onClick={() => handleSiparisSil(seciliSiparis)}
                 >
-                  Siparişi Sil
+                  <span className="btn-icon">🗑️</span>
+                  <span className="btn-text">Sil</span>
                 </button>
               </div>
             </div>

@@ -85,6 +85,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     try {
       const yeniMusteri = await musteriAPI.create(musteri);
       setMusteriler(prev => [...prev, { ...yeniMusteri, id: (yeniMusteri as any)._id || yeniMusteri.id }].sort((a, b) => a.sira - b.sira));
+      showToast(`${musteri.isim} müşterisi başarıyla eklendi.`, 'success');
     } catch (error) {
       console.error('Müşteri eklenirken hata:', error);
       showToast('Müşteri eklenirken bir hata oluştu.', 'error');
@@ -95,6 +96,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     try {
       const yeniRenk = await renkAPI.create(renk);
       setRenkler(prev => [...prev, { ...yeniRenk, id: (yeniRenk as any)._id || yeniRenk.id }].sort((a, b) => a.sira - b.sira));
+      showToast(`${renk.isim} rengi başarıyla eklendi.`, 'success');
     } catch (error) {
       console.error('Renk eklenirken hata:', error);
       showToast('Renk eklenirken bir hata oluştu.', 'error');
@@ -117,6 +119,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         tarih: new Date((yeniSiparis as any).createdAt || yeniSiparis.tarih)
       }]);
       setSiparisNoSayaci(prev => prev + 1);
+      
+      // Müşteri ve renk bilgilerini al
+      const musteri = musteriler.find(m => m.id === siparis.musteriId);
+      const renk = renkler.find(r => r.id === siparis.renkId);
+      const musteriIsmi = musteri?.isim || 'Bilinmeyen Müşteri';
+      const renkIsmi = renk?.isim || 'Bilinmeyen Renk';
+      
+      showToast(`${musteriIsmi} için ${renkIsmi} renginde sipariş başarıyla oluşturuldu.`, 'success');
     } catch (error) {
       console.error('Sipariş eklenirken hata:', error);
       showToast('Sipariş eklenirken bir hata oluştu.', 'error');
@@ -125,8 +135,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   const musteriSil = async (id: string) => {
     try {
+      const silinecekMusteri = musteriler.find(m => m.id === id);
       await musteriAPI.delete(id);
       setMusteriler(prev => prev.filter(m => m.id !== id));
+      showToast(`${silinecekMusteri?.isim || 'Müşteri'} başarıyla silindi.`, 'success');
     } catch (error) {
       console.error('Müşteri silinirken hata:', error);
       showToast('Müşteri silinirken bir hata oluştu.', 'error');
@@ -167,8 +179,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   const renkSil = async (id: string) => {
     try {
+      const silinecekRenk = renkler.find(r => r.id === id);
       await renkAPI.delete(id);
       setRenkler(prev => prev.filter(r => r.id !== id));
+      showToast(`${silinecekRenk?.isim || 'Renk'} başarıyla silindi.`, 'success');
     } catch (error) {
       console.error('Renk silinirken hata:', error);
       showToast('Renk silinirken bir hata oluştu.', 'error');
@@ -209,6 +223,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   const siparisTamamla = async (id: string) => {
     try {
+      const siparis = siparisler.find(s => s.id === id);
       await siparisAPI.updateStatus(id, 'tamamlandi');
       setSiparisler(prev => 
         prev.map(siparis => 
@@ -217,6 +232,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
             : siparis
         )
       );
+      showToast(`Sipariş #${siparis?.siparisNo || id} başarıyla tamamlandı.`, 'success');
     } catch (error) {
       console.error('Sipariş tamamlanırken hata:', error);
       showToast('Sipariş tamamlanırken bir hata oluştu.', 'error');
@@ -225,6 +241,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   const siparisIptal = async (id: string) => {
     try {
+      const siparis = siparisler.find(s => s.id === id);
       await siparisAPI.updateStatus(id, 'iptal');
       setSiparisler(prev => 
         prev.map(siparis => 
@@ -233,6 +250,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
             : siparis
         )
       );
+      showToast(`Sipariş #${siparis?.siparisNo || id} iptal edildi.`, 'warning');
     } catch (error) {
       console.error('Sipariş iptal edilirken hata:', error);
       showToast('Sipariş iptal edilirken bir hata oluştu.', 'error');
@@ -241,6 +259,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   const siparisAktifeDonustur = async (id: string) => {
     try {
+      const siparis = siparisler.find(s => s.id === id);
       await siparisAPI.updateStatus(id, 'beklemede');
       setSiparisler(prev => 
         prev.map(siparis => 
@@ -249,6 +268,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
             : siparis
         )
       );
+      showToast(`Sipariş #${siparis?.siparisNo || id} tekrar aktif hale getirildi.`, 'success');
     } catch (error) {
       console.error('Sipariş aktif edilirken hata:', error);
       showToast('Sipariş aktif edilirken bir hata oluştu.', 'error');
@@ -257,8 +277,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   const siparisSil = async (id: string) => {
     try {
+      const silinecekSiparis = siparisler.find(s => s.id === id);
       await siparisAPI.delete(id);
       setSiparisler(prev => prev.filter(s => s.id !== id));
+      showToast(`Sipariş #${silinecekSiparis?.siparisNo || id} başarıyla silindi.`, 'success');
     } catch (error) {
       console.error('Sipariş silinirken hata:', error);
       showToast('Sipariş silinirken bir hata oluştu.', 'error');
@@ -288,6 +310,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         }
         return [...prev, yeniKombinasyonWithId];
       });
+      
+      // Renk bilgisini al
+      const renk = renkler.find(r => r.id === kombinasyon.renkId);
+      const renkIsmi = renk?.isim || 'Bilinmeyen Renk';
+      
+      showToast(`${kombinasyon.siparisTuru} için ${renkIsmi} kombinasyonu başarıyla eklendi.`, 'success');
     } catch (error) {
       console.error('Kombinasyon eklenirken hata:', error);
       showToast('Kombinasyon eklenirken bir hata oluştu.', 'error');
@@ -296,8 +324,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   const kombinasyonSil = async (id: string) => {
     try {
+      const silinecekKombinasyon = urunKombinasyonlari.find(k => k.id === id);
       await kombinasyonAPI.delete(id);
       setUrunKombinasyonlari(prev => prev.filter(k => k.id !== id));
+      
+      // Renk bilgisini al
+      const renk = renkler.find(r => r.id === silinecekKombinasyon?.renkId);
+      const renkIsmi = renk?.isim || 'Bilinmeyen Renk';
+      
+      showToast(`${silinecekKombinasyon?.siparisTuru || 'Kombinasyon'} için ${renkIsmi} kombinasyonu başarıyla silindi.`, 'success');
     } catch (error) {
       console.error('Kombinasyon silinirken hata:', error);
       showToast('Kombinasyon silinirken bir hata oluştu.', 'error');
@@ -305,7 +340,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   };
 
   const kombinasyonBul = (siparisTuru: string, renkId: string, kolTuru?: string, yakaTuru?: string, ucIplikModeli?: string, polarModeli?: string) => {
-    return urunKombinasyonlari.find(k => {
+    // Önce direkt eşleşme ara
+    let bulunanKombinasyon = urunKombinasyonlari.find(k => {
       // renkId karşılaştırması - hem string hem de populate edilmiş obje için
       const kombinasyonRenkId = typeof k.renkId === 'object' && (k.renkId as any)?.id ? (k.renkId as any).id : k.renkId;
       
@@ -334,6 +370,66 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         k.kolTuru === kolTuru &&
         k.yakaTuru === yakaTuru;
     });
+
+    // Eğer direkt eşleşme bulunamadıysa ve süprem/yağmurdesen/lakost türlerinden biriyse, fallback kurallarını uygula
+    if (!bulunanKombinasyon && ['suprem', 'yagmurdesen', 'lakost'].includes(siparisTuru)) {
+      let fallbackSiparisTuru = '';
+      let fallbackYakaTuru = yakaTuru;
+      let fallbackKolTuru = kolTuru;
+
+      // Kısa ribanalı için kısa kol fallback'i
+      if (kolTuru === 'kisa-ribanali') {
+        bulunanKombinasyon = urunKombinasyonlari.find(k => {
+          const kombinasyonRenkId = typeof k.renkId === 'object' && (k.renkId as any)?.id ? (k.renkId as any).id : k.renkId;
+          
+          const renkIdEslesir = kombinasyonRenkId === renkId || 
+                               (typeof k.renkId === 'object' && (k.renkId as any)?._id === renkId) ||
+                               (typeof k.renkId === 'string' && k.renkId.toString() === renkId.toString());
+          
+          return k.siparisTuru === siparisTuru &&
+            renkIdEslesir &&
+            k.kolTuru === 'kisa' &&
+            k.yakaTuru === yakaTuru;
+        });
+      }
+
+      // Eğer hala bulunamadıysa, yaka türü fallback kurallarını uygula
+      if (!bulunanKombinasyon) {
+        if (yakaTuru === 'bisiklet') {
+          // Bisiklet yaka için süprem bisiklet yaka görsellerini ara
+          fallbackSiparisTuru = 'suprem';
+          fallbackYakaTuru = 'bisiklet';
+        } else if (yakaTuru === 'v') {
+          // V yaka için süprem v yaka görsellerini ara
+          fallbackSiparisTuru = 'suprem';
+          fallbackYakaTuru = 'v';
+        } else if (['polo', 'hakim', 'gomlek', 'yapma'].includes(yakaTuru || '')) {
+          // Polo, hakim, gömlek, yapma yaka için lakost polo yaka görsellerini ara
+          fallbackSiparisTuru = 'lakost';
+          fallbackYakaTuru = 'polo';
+        }
+
+        if (fallbackSiparisTuru) {
+          bulunanKombinasyon = urunKombinasyonlari.find(k => {
+            const kombinasyonRenkId = typeof k.renkId === 'object' && (k.renkId as any)?.id ? (k.renkId as any).id : k.renkId;
+            
+            const renkIdEslesir = kombinasyonRenkId === renkId || 
+                                 (typeof k.renkId === 'object' && (k.renkId as any)?._id === renkId) ||
+                                 (typeof k.renkId === 'string' && k.renkId.toString() === renkId.toString());
+            
+            // Kısa ribanalı için kısa kol fallback'i de burada uygula
+            const finalKolTuru = kolTuru === 'kisa-ribanali' ? 'kisa' : kolTuru;
+            
+            return k.siparisTuru === fallbackSiparisTuru &&
+              renkIdEslesir &&
+              k.kolTuru === finalKolTuru &&
+              k.yakaTuru === fallbackYakaTuru;
+          });
+        }
+      }
+    }
+
+    return bulunanKombinasyon;
   };
 
   const value: AppContextType = {

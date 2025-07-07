@@ -13,6 +13,24 @@ const GorsellerSayfasi: React.FC = () => {
   } = useAppContext();
   const { showToast, showConfirmModal } = useUI();
 
+  // Kol türleri
+  const kolTurleri = [
+    { value: 'kisa', label: 'Kısa Kol' },
+    { value: 'uzun', label: 'Uzun Kol' },
+    { value: 'yetim', label: 'Yetim Kol' },
+    { value: 'kisa-ribanali', label: 'Kısa Ribanalı' }
+  ];
+
+  // Yaka türleri
+  const yakaTurleri = [
+    { value: 'bisiklet', label: 'Bisiklet Yaka' },
+    { value: 'v', label: 'V Yaka' },
+    { value: 'polo', label: 'Polo Yaka' },
+    { value: 'hakim', label: 'Hakim Yaka' },
+    { value: 'gomlek', label: 'Gömlek Yaka' },
+    { value: 'yapma', label: 'Yapma Yaka' }
+  ];
+
   const [formData, setFormData] = useState({
     siparisTuru: 'suprem' as SiparisTuru,
     renkId: '',
@@ -78,14 +96,8 @@ const GorsellerSayfasi: React.FC = () => {
         
         autoName = `${siparisTuruText} - ${renk?.isim} - ${modelText}`;
       } else {
-        const kolTuruText = data.kolTuru === 'kisa' ? 'Kısa Kol' : 
-                            data.kolTuru === 'uzun' ? 'Uzun Kol' : 
-                            data.kolTuru === 'yetim' ? 'Yetim Kol' :
-                            data.kolTuru === 'kisa-ribanali' ? 'Kısa Ribanalı' : data.kolTuru;
-        
-        const yakaTuruText = data.yakaTuru === 'bisiklet' ? 'Bisiklet Yaka' : 
-                             data.yakaTuru === 'v' ? 'V Yaka' :
-                             data.yakaTuru === 'polo' ? 'Polo Yaka' : data.yakaTuru;
+        const kolTuruText = kolTurleri.find(k => k.value === data.kolTuru)?.label || data.kolTuru;
+        const yakaTuruText = yakaTurleri.find(y => y.value === data.yakaTuru)?.label || data.yakaTuru;
         
         autoName = `${siparisTuruText} - ${renk?.isim} - ${kolTuruText} - ${yakaTuruText}`;
       }
@@ -162,8 +174,6 @@ const GorsellerSayfasi: React.FC = () => {
     });
     setSelectedFile(null);
     setPreviewUrl('');
-    
-    showToast('Kombinasyon başarıyla eklendi!', 'success');
   };
 
   const handleDelete = async (id: string) => {
@@ -283,25 +293,25 @@ const GorsellerSayfasi: React.FC = () => {
     }
   };
 
-  const kolTurleri = [
-    { value: 'kisa', label: 'Kısa Kol' },
-    { value: 'uzun', label: 'Uzun Kol' },
-    { value: 'yetim', label: 'Yetim Kol' },
-    { value: 'kisa-ribanali', label: 'Kısa Ribanalı' }
-  ];
-
-  const yakaTurleri = [
-    { value: 'bisiklet', label: 'Bisiklet Yaka' },
-    { value: 'v', label: 'V Yaka' },
-    { value: 'polo', label: 'Polo Yaka' }
-  ];
-
   return (
     <div className="gorseller-sayfasi">
-      <h1>Ürün Kombinasyonu Yönetimi</h1>
-      <p className="aciklama">
-        Sipariş türü, renk, kol türü ve yaka türü kombinasyonları için görseller ekleyin.
-      </p>
+      {/* Modern Header */}
+      <div className="modern-header">
+        <div className="header-content">
+          <div className="header-left">
+            <div className="title-section">
+              <h1 className="page-title">
+                <span className="title-icon">🖼️</span>
+                Ürün Kombinasyonu Yönetimi
+              </h1>
+            </div>
+            <p className="subtitle">Sipariş türü, renk, kol türü ve yaka türü kombinasyonları için görseller ekleyin</p>
+          </div>
+          
+          <div className="header-right">
+          </div>
+        </div>
+      </div>
       
       <div className="kombinasyon-container">
         {/* Yeni Kombinasyon Ekleme Formu */}
@@ -462,15 +472,7 @@ const GorsellerSayfasi: React.FC = () => {
         {/* Mevcut Kombinasyonlar */}
         <div className="mevcut-kombinasyonlar">
           <div className="kombinasyon-header">
-            <h2>Mevcut Kombinasyonlar ({urunKombinasyonlari.length})</h2>
-            {urunKombinasyonlari.length > 0 && (
-              <button 
-                className="tumunu-toggle-btn"
-                onClick={tumunuToggle}
-              >
-                {Object.values(acikGruplar).every(Boolean) ? 'Tümünü Kapat' : 'Tümünü Aç'}
-              </button>
-            )}
+            <h2>Mevcut Kombinasyonlar</h2>
           </div>
           
           {urunKombinasyonlari.length === 0 ? (

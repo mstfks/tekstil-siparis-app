@@ -74,98 +74,121 @@ const MusterilerSayfasi: React.FC = () => {
   };
 
   return (
-    <div className="musteriler-sayfasi">
-      <div className="sayfa-header">
-        <h1>Müşteri Yönetimi</h1>
-        <button 
-          className="yeni-btn"
-          onClick={() => setShowForm(!showForm)}
-        >
-          {showForm ? 'İptal' : '+ Yeni Müşteri'}
-        </button>
+    <div className="modern-ana-sayfa musteriler-sayfasi">
+      {/* Modern Header Section */}
+      <div className="modern-header">
+        <div className="header-content">
+          <div className="header-left">
+            <div className="title-section">
+              <h1 className="page-title">
+                <span className="title-icon">👥</span>
+                Müşteri Yönetimi
+              </h1>
+              <div className="stats-badge">
+                <span className="count">{musteriler.length}</span>
+                <span className="label">müşteri</span>
+              </div>
+            </div>
+            <p className="subtitle">Müşterilerinizi düzenleyin ve yönetin</p>
+          </div>
+          
+          <div className="header-right">
+            <div className="controls-group">
+              <button 
+                className="yeni-btn"
+                onClick={() => setShowForm(!showForm)}
+              >
+                {showForm ? 'İptal' : '+ Yeni Müşteri'}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {showForm && (
-        <div className="yeni-musteri-form">
-          <form onSubmit={handleSubmit}>
-            <div className="form-grup">
-              <label htmlFor="musteriIsmi">Müşteri İsmi</label>
-              <input
-                type="text"
-                id="musteriIsmi"
-                value={yeniMusteriIsmi}
-                onChange={(e) => setYeniMusteriIsmi(e.target.value)}
-                placeholder="Müşteri ismini giriniz"
-                required
-                autoFocus
-              />
-            </div>
-            <div className="form-actions">
-              <button type="button" onClick={() => setShowForm(false)} className="iptal-btn">
-                İptal
-              </button>
-              <button type="submit" className="kaydet-btn">
-                Kaydet
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      <div className="musteriler-listesi">
-        {musteriler.length === 0 ? (
-          <div className="bos-liste">
-            <p>Henüz müşteri bulunmuyor.</p>
-            <p>Yeni müşteri eklemek için yukarıdaki "Yeni Müşteri" butonunu kullanın.</p>
-          </div>
-        ) : (
-          <div className="musteri-liste">
-            {musteriler.map((musteri, index) => (
-              <div 
-                key={musteri.id} 
-                className={`musteri-kart ${
-                  draggedItem === musteri.id ? 'dragging' : ''
-                } ${
-                  dragOverItem === musteri.id ? 'drag-over' : ''
-                }`}
-                draggable
-                onDragStart={(e) => handleDragStart(e, musteri.id)}
-                onDragOver={(e) => handleDragOver(e, musteri.id)}
-                onDragLeave={handleDragLeave}
-                onDrop={(e) => handleDrop(e, musteri.id)}
-                onDragEnd={handleDragEnd}
-              >
-                <div className="drag-handle">
-                  <span>⋮⋮</span>
-                </div>
-                <div className="musteri-bilgi">
-                  <h3>{musteri.isim}</h3>
-                </div>
-                <div className="musteri-actions">
-                  <button
-                    className="sil-btn"
-                    onClick={() => handleSil(musteri.id, musteri.isim)}
-                    title="Müşteriyi sil"
-                  >
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
-                    </svg>
-                  </button>
-                </div>
+      {/* Content Area */}
+      <div className="content-area">
+        {showForm && (
+          <div className="yeni-musteri-form">
+            <form onSubmit={handleSubmit}>
+              <div className="form-grup">
+                <label htmlFor="musteriIsmi">Müşteri İsmi</label>
+                <input
+                  type="text"
+                  id="musteriIsmi"
+                  value={yeniMusteriIsmi}
+                  onChange={(e) => setYeniMusteriIsmi(e.target.value)}
+                  placeholder="Müşteri ismini giriniz"
+                  required
+                  autoFocus
+                />
               </div>
-            ))}
+              <div className="form-actions">
+                <button type="button" onClick={() => setShowForm(false)} className="iptal-btn">
+                  İptal
+                </button>
+                <button type="submit" className="kaydet-btn">
+                  Kaydet
+                </button>
+              </div>
+            </form>
           </div>
         )}
-      </div>
 
-      <div className="sayfa-footer">
-        <div className="toplam-musteri-container">
-          <div className="cizgi-sol"></div>
-          <div className="toplam-musteri-badge">
-            <span className="toplam-icon">👥</span>
-            <span className="toplam-text">Toplam {musteriler.length} Müşteri</span>
+        <div className="musteriler-listesi">
+          {musteriler.length === 0 ? (
+            <div className="bos-liste">
+              <p>Henüz müşteri bulunmuyor.</p>
+              <p>Yeni müşteri eklemek için yukarıdaki "Yeni Müşteri" butonunu kullanın.</p>
+            </div>
+          ) : (
+            <div className="musteri-liste">
+              {musteriler.map((musteri, index) => (
+                <div 
+                  key={musteri.id} 
+                  className={`musteri-kart ${
+                    draggedItem === musteri.id ? 'dragging' : ''
+                  } ${
+                    dragOverItem === musteri.id ? 'drag-over' : ''
+                  }`}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, musteri.id)}
+                  onDragOver={(e) => handleDragOver(e, musteri.id)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, musteri.id)}
+                  onDragEnd={handleDragEnd}
+                >
+                  <div className="drag-handle">
+                    <span>⋮⋮</span>
+                  </div>
+                  <div className="musteri-bilgi">
+                    <h3>{musteri.isim}</h3>
+                  </div>
+                  <div className="musteri-actions">
+                    <button
+                      className="sil-btn"
+                      onClick={() => handleSil(musteri.id, musteri.isim)}
+                      title="Müşteriyi sil"
+                    >
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="sayfa-footer">
+          <div className="toplam-musteri-container">
+            <div className="cizgi-sol"></div>
+            <div className="toplam-musteri-badge">
+              <span className="toplam-icon">👥</span>
+              <span className="toplam-text">Toplam {musteriler.length} Müşteri</span>
+            </div>
+            <div className="cizgi-sag"></div>
           </div>
-          <div className="cizgi-sag"></div>
         </div>
       </div>
     </div>

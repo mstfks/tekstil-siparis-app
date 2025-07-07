@@ -192,8 +192,25 @@ const AnalyzSayfasi: React.FC = () => {
 
   return (
     <div className={styles.analyzSayfasi}>
+      {/* Modern Header */}
+      <div className="modern-header">
+        <div className="header-content">
+          <div className="header-left">
+            <div className="title-section">
+              <h1 className="page-title">
+                <span className="title-icon">📊</span>
+                Sipariş Analizi
+              </h1>
+            </div>
+            <p className="subtitle">Tamamlanan siparişlerinizin detaylı analizi</p>
+          </div>
+          
+          <div className="header-right">
+          </div>
+        </div>
+      </div>
+
       <div className={styles.sayfaHeader}>
-        <h1>📊 Sipariş Analizi</h1>
         <div className={styles.periyotFiltreleri}>
           {(['tumu', 'bu-ay', 'son-3-ay', 'bu-yil'] as const).map(periyot => (
             <button
