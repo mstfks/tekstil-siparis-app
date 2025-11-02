@@ -371,6 +371,26 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         k.yakaTuru === yakaTuru;
     });
 
+    // Eğer polar için görsel bulunamadıysa ve model bilgisi varsa, aynı model için 3 iplik görsellerini ara
+    if (!bulunanKombinasyon && siparisTuru === 'polar' && polarModeli) {
+      // Ortak modeller: dik-yaka-mont, kisa-fermuarli-sivit, kapusonlu-mont
+      const ortakModeller = ['dik-yaka-mont', 'kisa-fermuarli-sivit', 'kapusonlu-mont'];
+      
+      if (ortakModeller.includes(polarModeli)) {
+        bulunanKombinasyon = urunKombinasyonlari.find(k => {
+          const kombinasyonRenkId = typeof k.renkId === 'object' && (k.renkId as any)?.id ? (k.renkId as any).id : k.renkId;
+          
+          const renkIdEslesir = kombinasyonRenkId === renkId || 
+                               (typeof k.renkId === 'object' && (k.renkId as any)?._id === renkId) ||
+                               (typeof k.renkId === 'string' && k.renkId.toString() === renkId.toString());
+          
+          return k.siparisTuru === '3iplik' &&
+            renkIdEslesir &&
+            k.ucIplikModeli === polarModeli;
+        });
+      }
+    }
+
     // Eğer direkt eşleşme bulunamadıysa ve süprem/yağmurdesen/lakost türlerinden biriyse, fallback kurallarını uygula
     if (!bulunanKombinasyon && ['suprem', 'yagmurdesen', 'lakost'].includes(siparisTuru)) {
       let fallbackSiparisTuru = '';
