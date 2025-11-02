@@ -359,6 +359,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       
       // Polar için farklı karşılaştırma
       if (siparisTuru === 'polar') {
+        // Polar türünde aynı model ve renk için görsel ara
         return k.siparisTuru === siparisTuru &&
           renkIdEslesir &&
           k.polarModeli === polarModeli;
@@ -376,14 +377,17 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       // Ortak modeller: dik-yaka-mont, kisa-fermuarli-sivit, kapusonlu-mont
       const ortakModeller = ['dik-yaka-mont', 'kisa-fermuarli-sivit', 'kapusonlu-mont'];
       
+      // Eğer polar modeli ortak modellerden biriyse, 3 iplik görsellerini ara
       if (ortakModeller.includes(polarModeli)) {
         bulunanKombinasyon = urunKombinasyonlari.find(k => {
+          // renkId karşılaştırması - hem string hem de populate edilmiş obje için
           const kombinasyonRenkId = typeof k.renkId === 'object' && (k.renkId as any)?.id ? (k.renkId as any).id : k.renkId;
           
           const renkIdEslesir = kombinasyonRenkId === renkId || 
                                (typeof k.renkId === 'object' && (k.renkId as any)?._id === renkId) ||
                                (typeof k.renkId === 'string' && k.renkId.toString() === renkId.toString());
           
+          // 3 iplik türünde, aynı renk ve aynı model için görsel ara
           return k.siparisTuru === '3iplik' &&
             renkIdEslesir &&
             k.ucIplikModeli === polarModeli;
